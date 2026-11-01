@@ -8,7 +8,9 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasScrollToIndexAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -90,6 +92,27 @@ class AppFlowsTest {
         }
         compose.onNodeWithText(str(R.string.action_done)).performClick()
         compose.onNodeWithText(title, substring = true).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test fun reportsShowSavedEntriesAndOpenTheEntriesBehindACategory() {
+        val container = TestSession.current
+        runBlocking {
+            container.transactionService.saveExpense(
+                com.family.finance.domain.model.TransactionId("ui-report-expense"),
+                com.family.finance.domain.validation.ExpenseDraft(
+                    "1234.56", "உரம் அறிக்கை சோதனை", com.family.finance.domain.model.DefaultCategories.idFor("fertilizers"),
+                    container.today(), AccountId("ui-test-cash"),
+                ),
+            )
+        }
+        compose.onAllNodesWithText(str(R.string.nav_reports)).onFirst().performClick()
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("₹1,234.56").fetchSemanticsNodes().isNotEmpty() }
+
+        // Category breakdown -> the entries behind it.
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText(str(R.string.cat_fertilizers)))
+        compose.onNodeWithText(str(R.string.cat_fertilizers)).performClick()
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("உரம் அறிக்கை சோதனை").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("உரம் அறிக்கை சோதனை").assertIsDisplayed()
     }
 
     @Test fun savingEmptyFormShowsErrorsAndStaysOpen() {

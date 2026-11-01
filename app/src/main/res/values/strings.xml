@@ -8,7 +8,6 @@
     <string name="nav_calendar">Calendar</string>
     <string name="nav_reports">Reports</string>
     <string name="nav_more">More</string>
-    <string name="placeholder_coming_soon">This screen will be built in a later phase.</string>
 
     <!-- Transaction types -->
     <string name="type_income">Income</string>
@@ -267,4 +266,65 @@
     <string name="conflict_deleted">Deleted</string>
     <string name="action_use_this_version">Use this version</string>
     <string name="action_confirm_version">The version shown is correct</string>
+    <!-- Reports (PRD 6.10) -->
+    <string name="period_last_year">Last year</string>
+    <string name="period_custom">Choose dates…</string>
+    <string name="reports_all_accounts">All accounts</string>
+    <string name="reports_all_categories">All categories</string>
+    <string name="reports_section_trend">Income and expenses</string>
+    <string name="bucket_day">Daily</string>
+    <string name="bucket_month">Monthly</string>
+    <string name="bucket_year">Yearly</string>
+    <string name="reports_section_expense_categories">Expenses by category</string>
+    <string name="reports_section_income_categories">Income by category</string>
+    <string name="reports_section_sources">Income by source</string>
+    <string name="reports_section_accounts">Account summary</string>
+    <string name="reports_money_in">Money in</string>
+    <string name="reports_money_out">Money out</string>
+    <string name="reports_transfers_in">Transfers in</string>
+    <string name="reports_transfers_out">Transfers out</string>
+    <string name="reports_opening_added">Opening balance of new accounts</string>
+    <string name="reports_loans_received">Of which, loans received</string>
+    <string name="reports_loans_repaid">Of which, loans repaid</string>
+    <string name="reports_balances_hidden">Opening and closing balances are shown only when all categories and entry types are included.</string>
+    <string name="reports_no_data">No entries in this period.</string>
+    <string name="reports_not_given">Not given</string>
+    <string name="reports_see_entries">See entries</string>
+    <plurals name="reports_entry_count">
+        <item quantity="one">%d entry</item>
+        <item quantity="other">%d entries</item>
+    </plurals>
+
+    <!-- Export (PRD 12) -->
+    <string name="action_export">Export</string>
+    <string name="export_title">Export report</string>
+    <string name="export_format">File type</string>
+    <string name="export_format_pdf">PDF statement</string>
+    <string name="export_format_csv">CSV (spreadsheet data)</string>
+    <string name="export_format_xlsx">Excel workbook</string>
+    <string name="export_language">Language of the file</string>
+    <string name="export_language_hint">Only headings and labels change. Text you typed stays exactly as you typed it.</string>
+    <string name="export_private_warning">This file contains your family\'s financial details. Share it only with people you trust.</string>
+    <string name="action_save_file">Save to phone</string>
+    <string name="action_share">Share</string>
+    <string name="export_working">Preparing the file…</string>
+    <string name="export_saved">File saved</string>
+    <string name="export_failed">Could not create the file. Please try again.</string>
+    <string name="export_share_chooser">Share report</string>
+    <string name="export_statement_title">Financial statement</string>
+    <string name="export_period">Period</string>
+    <string name="export_generated_on">Generated on</string>
+    <string name="export_includes">Includes</string>
+    <string name="export_all_entries">All entries</string>
+    <string name="export_total_income">Total income</string>
+    <string name="export_total_expense">Total expenses</string>
+    <string name="export_col_type">Entry type</string>
+    <string name="export_col_party">Received from / Paid to</string>
+    <string name="export_col_entered_by">Entered by</string>
+    <string name="export_col_share">Share</string>
+    <string name="export_col_count">Entries</string>
+    <string name="export_sheet_summary">Summary</string>
+    <string name="export_sheet_transactions">Transactions</string>
+    <string name="export_sheet_categories">Category breakdown</string>
+    <string name="export_page">Page %1$d of %2$d</string>
 </resources>

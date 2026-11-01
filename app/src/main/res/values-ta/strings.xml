@@ -8,7 +8,6 @@
     <string name="nav_calendar">நாள்காட்டி</string>
     <string name="nav_reports">அறிக்கைகள்</string>
     <string name="nav_more">மேலும்</string>
-    <string name="placeholder_coming_soon">இந்தத் திரை அடுத்த கட்டத்தில் உருவாக்கப்படும்.</string>
 
     <!-- Transaction types -->
     <string name="type_income">வரவு</string>
@@ -264,4 +263,65 @@
     <string name="conflict_deleted">நீக்கப்பட்டது</string>
     <string name="action_use_this_version">இந்தப் பதிப்பைப் பயன்படுத்து</string>
     <string name="action_confirm_version">காட்டப்படும் பதிப்பு சரியானது</string>
+    <!-- Reports (PRD 6.10) -->
+    <string name="period_last_year">கடந்த ஆண்டு</string>
+    <string name="period_custom">தேதிகளைத் தேர்ந்தெடு…</string>
+    <string name="reports_all_accounts">எல்லாக் கணக்குகளும்</string>
+    <string name="reports_all_categories">எல்லா வகைகளும்</string>
+    <string name="reports_section_trend">வரவும் செலவும்</string>
+    <string name="bucket_day">தினசரி</string>
+    <string name="bucket_month">மாதாந்திரம்</string>
+    <string name="bucket_year">ஆண்டுதோறும்</string>
+    <string name="reports_section_expense_categories">வகைவாரியான செலவுகள்</string>
+    <string name="reports_section_income_categories">வகைவாரியான வரவு</string>
+    <string name="reports_section_sources">யாரிடமிருந்து வந்த வரவு</string>
+    <string name="reports_section_accounts">கணக்குச் சுருக்கம்</string>
+    <string name="reports_money_in">உள்வந்த பணம்</string>
+    <string name="reports_money_out">வெளிச்சென்ற பணம்</string>
+    <string name="reports_transfers_in">உள்வந்த பணமாற்றம்</string>
+    <string name="reports_transfers_out">வெளிச்சென்ற பணமாற்றம்</string>
+    <string name="reports_opening_added">புதிய கணக்குகளின் தொடக்க இருப்பு</string>
+    <string name="reports_loans_received">இதில், பெற்ற கடன்</string>
+    <string name="reports_loans_repaid">இதில், திருப்பிச் செலுத்திய கடன்</string>
+    <string name="reports_balances_hidden">எல்லா வகைகளும் பதிவு வகைகளும் சேர்க்கப்படும்போது மட்டுமே தொடக்க, இறுதி இருப்புகள் காட்டப்படும்.</string>
+    <string name="reports_no_data">இந்தக் காலத்தில் பதிவுகள் இல்லை.</string>
+    <string name="reports_not_given">குறிப்பிடப்படவில்லை</string>
+    <string name="reports_see_entries">பதிவுகளைக் காட்டு</string>
+    <plurals name="reports_entry_count">
+        <item quantity="one">%d பதிவு</item>
+        <item quantity="other">%d பதிவுகள்</item>
+    </plurals>
+
+    <!-- Export (PRD 12) -->
+    <string name="action_export">ஏற்றுமதி</string>
+    <string name="export_title">அறிக்கையை ஏற்றுமதி செய்</string>
+    <string name="export_format">கோப்பு வகை</string>
+    <string name="export_format_pdf">PDF அறிக்கை</string>
+    <string name="export_format_csv">CSV (விரிதாள் தரவு)</string>
+    <string name="export_format_xlsx">Excel பணிப்புத்தகம்</string>
+    <string name="export_language">கோப்பின் மொழி</string>
+    <string name="export_language_hint">தலைப்புகளும் பெயர்களும் மட்டுமே மாறும். நீங்கள் தட்டச்சு செய்த உரை அப்படியே இருக்கும்.</string>
+    <string name="export_private_warning">இந்தக் கோப்பில் உங்கள் குடும்பத்தின் நிதி விவரங்கள் உள்ளன. நம்பிக்கையானவர்களுடன் மட்டும் பகிரவும்.</string>
+    <string name="action_save_file">தொலைபேசியில் சேமி</string>
+    <string name="action_share">பகிர்</string>
+    <string name="export_working">கோப்பைத் தயாரிக்கிறது…</string>
+    <string name="export_saved">கோப்பு சேமிக்கப்பட்டது</string>
+    <string name="export_failed">கோப்பை உருவாக்க முடியவில்லை. மீண்டும் முயலவும்.</string>
+    <string name="export_share_chooser">அறிக்கையைப் பகிர்</string>
+    <string name="export_statement_title">நிதி அறிக்கை</string>
+    <string name="export_period">காலம்</string>
+    <string name="export_generated_on">உருவாக்கப்பட்ட தேதி</string>
+    <string name="export_includes">உள்ளடக்கம்</string>
+    <string name="export_all_entries">அனைத்துப் பதிவுகளும்</string>
+    <string name="export_total_income">மொத்த வரவு</string>
+    <string name="export_total_expense">மொத்தச் செலவு</string>
+    <string name="export_col_type">பதிவு வகை</string>
+    <string name="export_col_party">பெற்றது / செலுத்தியது</string>
+    <string name="export_col_entered_by">பதிவு செய்தவர்</string>
+    <string name="export_col_share">பங்கு</string>
+    <string name="export_col_count">பதிவுகள்</string>
+    <string name="export_sheet_summary">சுருக்கம்</string>
+    <string name="export_sheet_transactions">பரிவர்த்தனைகள்</string>
+    <string name="export_sheet_categories">வகைவாரியான பகுப்பு</string>
+    <string name="export_page">பக்கம் %1$d / %2$d</string>
 </resources>

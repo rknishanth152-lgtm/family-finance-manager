@@ -17,6 +17,9 @@ import androidx.compose.ui.test.FontScale
 import androidx.compose.ui.test.Locales
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -44,6 +47,9 @@ import com.family.finance.ui.common.LocalAppContainer
 import com.family.finance.ui.navigation.FormKind
 import com.family.finance.ui.navigation.Routes
 import com.family.finance.ui.navigation.TopLevelDestination
+import com.family.finance.ui.reports.EntriesFilter
+import com.family.finance.domain.calc.DateRange
+import java.time.LocalDate
 import com.family.finance.ui.theme.FamilyFinanceTheme
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
@@ -75,6 +81,8 @@ class ScreenTourTest {
     private lateinit var nav: NavHostController
     private val problems = mutableListOf<String>()
     private var shotNumber = 0
+    private lateinit var today: LocalDate
+    private val firstOfMonth: LocalDate get() = today.withDayOfMonth(1)
 
     @Test fun everyScreenFitsInBothLanguagesAtLargeFonts() {
         val container = seededContainer()
@@ -110,6 +118,10 @@ class ScreenTourTest {
         clickDescription(R.string.action_filters); check("transactions-filters"); pressBack()
         top(TopLevelDestination.CALENDAR); check("calendar")
         top(TopLevelDestination.REPORTS); check("reports")
+        scrollReportsTo(R.string.reports_section_expense_categories); check("reports-categories")
+        scrollReportsTo(R.string.reports_section_accounts); check("reports-accounts")
+        clickDescription(R.string.action_export); check("export-sheet"); pressBack()
+        go(Routes.reportEntries(EntriesFilter(DateRange(firstOfMonth, today)))); check("report-entries")
         top(TopLevelDestination.MORE); check("more")
         clickText(R.string.more_language); check("language-dialog"); pressBack()
         top(TopLevelDestination.HOME); clickDescription(R.string.action_add_transaction); check("add-sheet"); pressBack()
@@ -125,6 +137,12 @@ class ScreenTourTest {
     }
 
     // --- navigation helpers ---
+
+    /** Lazy lists only compose what is on screen, so scroll down to check the lower sections too. */
+    private fun scrollReportsTo(headingRes: Int) {
+        compose.onAllNodes(hasScrollToIndexAction()).onFirst().performScrollToNode(hasText(str(headingRes)))
+        compose.waitForIdle()
+    }
 
     /** Closes the open dialog or sheet. */
     private fun pressBack() {
@@ -215,7 +233,7 @@ class ScreenTourTest {
 
     private fun seededContainer(): AppContainer {
         val c = AppContainer()
-        val today = c.today()
+        today = c.today()
         val first = today.withDayOfMonth(1)
         runBlocking {
             c.accountService.save(AccountId("cash"), AccountDraft("ரொக்கம்", AccountType.CASH, "25000", first.minusMonths(2)))

@@ -56,7 +56,14 @@ import com.family.finance.ui.home.HomeRoute
 import com.family.finance.ui.more.MoreScreen
 import com.family.finance.ui.notes.NoteEditRoute
 import com.family.finance.ui.notes.NotesRoute
-import com.family.finance.ui.screens.PlaceholderScreen
+import com.family.finance.ui.reports.EntriesFilter
+import com.family.finance.ui.reports.ReportEntriesRoute
+import com.family.finance.ui.reports.ReportsRoute
+import com.family.finance.domain.calc.DateRange
+import com.family.finance.domain.model.CategoryId
+import com.family.finance.domain.usecase.TypeFilter
+import android.net.Uri
+import java.time.LocalDate
 import com.family.finance.ui.transactions.TransactionDetailRoute
 import com.family.finance.ui.transactions.TransactionsRoute
 
@@ -86,11 +93,15 @@ object Routes {
     const val FAMILY = "family"
     const val NOTES = "notes"
     const val NOTE_EDIT = "notes/edit?id={id}"
+    const val REPORT_ENTRIES = "reports/entries?from={from}&to={to}&account={account}&category={category}&type={type}"
 
     fun form(kind: FormKind, id: TransactionId? = null) = "form/${kind.route}" + (id?.let { "?id=${it.value}" } ?: "")
     fun detail(id: TransactionId) = "transaction/${id.value}"
     fun accountEdit(id: AccountId? = null) = "accounts/edit" + (id?.let { "?id=${it.value}" } ?: "")
     fun noteEdit(id: NoteId? = null) = "notes/edit" + (id?.let { "?id=${it.value}" } ?: "")
+    fun reportEntries(f: EntriesFilter) = "reports/entries?from=${f.range.start}&to=${f.range.end}&type=${f.type.name}" +
+        (f.accountId?.let { "&account=${Uri.encode(it.value)}" } ?: "") +
+        (f.categoryId?.let { "&category=${Uri.encode(it.value)}" } ?: "")
 }
 
 private val optionalId = navArgument("id") {
@@ -184,7 +195,28 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             }
             composable(TopLevelDestination.TRANSACTIONS.route) { TransactionsRoute(onOpenTransaction = openDetail) }
             composable(TopLevelDestination.CALENDAR.route) { CalendarRoute(onOpenTransaction = openDetail) }
-            composable(TopLevelDestination.REPORTS.route) { PlaceholderScreen(titleRes = R.string.nav_reports) }
+            composable(TopLevelDestination.REPORTS.route) {
+                ReportsRoute(onOpenEntries = { navController.navigate(Routes.reportEntries(it)) })
+            }
+            composable(
+                Routes.REPORT_ENTRIES,
+                arguments = listOf("from", "to", "type", "account", "category").map { name ->
+                    navArgument(name) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                },
+            ) { entry ->
+                val args = checkNotNull(entry.arguments)
+                val filter = EntriesFilter(
+                    range = DateRange(LocalDate.parse(args.getString("from")), LocalDate.parse(args.getString("to"))),
+                    accountId = args.getString("account")?.let(::AccountId),
+                    categoryId = args.getString("category")?.let(::CategoryId),
+                    type = args.getString("type")?.let(TypeFilter::valueOf) ?: TypeFilter.ALL,
+                )
+                ReportEntriesRoute(filter, onBack = { navController.popBackStack() }, onOpenTransaction = openDetail)
+            }
             composable(TopLevelDestination.MORE.route) {
                 MoreScreen(
                     onAccounts = { navController.navigate(Routes.ACCOUNTS) },

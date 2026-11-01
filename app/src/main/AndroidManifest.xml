@@ -21,6 +21,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Shares a finished export with the app the user picks; read access is granted per share (PRD 12). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.exports"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/export_paths" />
+        </provider>
+
         <!-- Persists the per-app language chosen via AppCompatDelegate on API < 33. -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

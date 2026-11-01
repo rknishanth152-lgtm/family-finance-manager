@@ -53,5 +53,6 @@ sealed interface ReportingPeriod {
         fun thisMonth(today: LocalDate): ReportingPeriod = Month(YearMonth.from(today))
         fun lastMonth(today: LocalDate): ReportingPeriod = Month(YearMonth.from(today).minusMonths(1))
         fun thisYear(today: LocalDate): ReportingPeriod = Year(today.year)
+        fun lastYear(today: LocalDate): ReportingPeriod = Year(today.year - 1)
     }
 }

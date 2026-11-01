@@ -43,6 +43,14 @@ android {
     androidResources {
         generateLocaleConfig = true
     }
+
+    // Both languages must always be installed: the in-app switch and exports in either
+    // language need Tamil and English resources whatever the phone's own language is.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
 }
 
 dependencies {

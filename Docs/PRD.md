@@ -1637,28 +1637,33 @@ Localization must begin early and continue throughout development.
 * XLSX export.
 * Custom date filters.
 
-## Phase 6: Backup and Migration
+## Phase 6: Go-Live (Release, Backup and Migration)
 
+Release setup comes first, so the family's historical data is imported once, straight
+into the production project, and never passes through the development project.
+
+* Production Firebase project, release signing key, security rules deployed and tested.
 * Full backup.
 * Restoration.
 * Import utility.
-* Historical data verification.
+* Historical data verification (totals must reconcile exactly before go-live).
+* First recoverable backup before the app becomes the primary record.
+* Security audit.
+* Regression testing.
+* Device testing.
+* Signed APK.
+* Installation on both phones.
 
-## Phase 7: Advanced Features
+## Later (optional): Advanced Features
+
+Not required by the Definition of Done. Chosen after the family has used the app, and
+each added as its own small, tested change.
 
 * Recurring transactions.
 * Templates.
 * Budgets.
 * Receipt attachments.
 * Loan tracking.
-
-## Phase 8: Release
-
-* Security audit.
-* Regression testing.
-* Device testing.
-* Signed APK.
-* Installation on both phones.
 
 ---
 
