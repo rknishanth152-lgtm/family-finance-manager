@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Family Finance</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_transactions">Transactions</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_reports">Reports</string>
+    <string name="nav_more">More</string>
+
+    <string name="placeholder_coming_soon">This screen will be built in a later phase.</string>
+</resources>

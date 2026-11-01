@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">குடும்ப நிதி</string>
+
+    <string name="nav_home">முகப்பு</string>
+    <string name="nav_transactions">பரிவர்த்தனைகள்</string>
+    <string name="nav_calendar">நாள்காட்டி</string>
+    <string name="nav_reports">அறிக்கைகள்</string>
+    <string name="nav_more">மேலும்</string>
+
+    <string name="placeholder_coming_soon">இந்தத் திரை அடுத்த கட்டத்தில் உருவாக்கப்படும்.</string>
+</resources>
