@@ -12,14 +12,18 @@ import com.family.finance.domain.repository.AccountRepository
 import com.family.finance.domain.repository.CategoryRepository
 import com.family.finance.domain.repository.NoteRepository
 import com.family.finance.domain.repository.TransactionRepository
+import com.family.finance.domain.model.UserId
+import com.family.finance.domain.sync.ConflictDetector
+import com.family.finance.domain.sync.EditEntry
+import java.time.Clock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 /**
- * Phase 2 storage: process memory only, lost on restart. Phase 4 replaces these with
- * Firestore-backed implementations of the same interfaces.
+ * Process-memory storage for unit tests and previews. The app itself uses the Firestore
+ * implementations in data.firestore.
  */
 internal class InMemoryStore<K : Any, V : Any>(private val keyOf: (V) -> K, initial: List<V> = emptyList()) {
     private val state = MutableStateFlow(initial.associateBy(keyOf))
@@ -30,12 +34,38 @@ internal class InMemoryStore<K : Any, V : Any>(private val keyOf: (V) -> K, init
     fun delete(key: K) = state.update { it - key }
 }
 
-class InMemoryTransactionRepository : TransactionRepository {
+class InMemoryTransactionRepository(
+    private val currentUser: () -> UserId = { UserId("local-user") },
+    private val clock: Clock = Clock.systemUTC(),
+) : TransactionRepository {
     private val store = InMemoryStore<TransactionId, Transaction>({ it.id })
+    private val versions = mutableMapOf<TransactionId, Int>()
+    private val log = MutableStateFlow<Map<TransactionId, List<EditEntry>>>(emptyMap())
+
     override fun observeAll() = store.observe()
     override suspend fun get(id: TransactionId) = store.get(id)
-    override suspend fun upsert(transaction: Transaction) = store.upsert(transaction)
-    override suspend fun delete(id: TransactionId) = store.delete(id)
+
+    override suspend fun upsert(transaction: Transaction) {
+        store.upsert(transaction)
+        record(transaction.id, transaction)
+    }
+
+    override suspend fun delete(id: TransactionId) {
+        if (store.get(id) == null) return
+        store.delete(id)
+        record(id, null)
+    }
+
+    override fun observeEditLog(): Flow<Map<TransactionId, List<EditEntry>>> = log
+
+    @Synchronized
+    private fun record(id: TransactionId, state: Transaction?) {
+        val base = versions[id] ?: 0
+        val version = ConflictDetector.nextVersion(base)
+        versions[id] = version
+        val entry = EditEntry(base, version, currentUser(), clock.instant(), deleted = state == null, state = state)
+        log.update { it + (id to (it[id].orEmpty() + entry)) }
+    }
 }
 
 class InMemoryAccountRepository(initial: List<Account> = emptyList()) : AccountRepository {

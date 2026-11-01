@@ -52,6 +52,9 @@ import com.family.finance.ui.components.EmptyState
 import com.family.finance.ui.components.IncomeExpenseStrip
 import com.family.finance.ui.components.MoneyText
 import com.family.finance.ui.components.SectionHeader
+import com.family.finance.ui.components.SyncIndicator
+import com.family.finance.ui.components.WarningCard
+import androidx.compose.ui.res.pluralStringResource
 import com.family.finance.ui.components.TransactionRow
 import com.family.finance.ui.navigation.FormKind
 import com.family.finance.ui.theme.Spacing
@@ -64,7 +67,7 @@ fun HomeRoute(
     onAddAccount: () -> Unit,
 ) {
     val vm = appViewModel { c ->
-        HomeViewModel(c.transactionRepository, c.accountRepository, c.categoryRepository, c::today)
+        HomeViewModel(c.transactionRepository, c.accountRepository, c.categoryRepository, c::today, c.syncState)
     }
     val state by vm.uiState.collectAsStateWithLifecycle()
     HomeScreen(
@@ -91,7 +94,14 @@ fun HomeScreen(
     onSeeAll: () -> Unit,
     onAddAccount: () -> Unit,
 ) {
-    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) }) { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.app_name)) },
+                actions = { SyncIndicator(state.sync) },
+            )
+        },
+    ) { padding ->
         // Draw nothing until data arrives, so the dashboard never flashes before the empty state.
         if (state.loading) return@Scaffold
         if (!state.hasAccounts) {
@@ -110,6 +120,17 @@ fun HomeScreen(
             contentPadding = PaddingValues(bottom = Spacing.fabClearance),
             verticalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
+            state.conflicted.firstOrNull()?.let { first ->
+                item {
+                    WarningCard(
+                        title = pluralStringResource(R.plurals.conflict_home_title, state.conflicted.size, state.conflicted.size),
+                        message = stringResource(R.string.conflict_home_message),
+                        modifier = Modifier.padding(horizontal = Spacing.md),
+                    ) {
+                        TextButton(onClick = { onOpenTransaction(first) }) { Text(stringResource(R.string.action_check_now)) }
+                    }
+                }
+            }
             item { BalanceCard(state.currentBalance) }
             item { PeriodSelector(state, onPrevious, onNext, onSelectPeriod) }
             state.summary?.let { summary ->

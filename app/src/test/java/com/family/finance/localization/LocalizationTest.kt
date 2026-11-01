@@ -69,7 +69,7 @@ class LocalizationTest {
 
     @Test fun `Tamil strings contain Tamil text, not leftover English`() {
         // Pure-format strings legitimately have no words to translate.
-        val formatOnly = setOf("transfer_from_to", "period_range")
+        val formatOnly = setOf("transfer_from_to", "period_range", "conflict_version_line")
         val tamilScript = Regex("[஀-௿]")
         val untranslated = tamil.filter { (key, e) -> key !in formatOnly && !tamilScript.containsMatchIn(e.text) }.keys
         assertWithMessage("Tamil file has strings with no Tamil characters").that(untranslated).isEmpty()

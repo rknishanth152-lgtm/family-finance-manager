@@ -23,3 +23,9 @@ object NoteValidator {
         if (draft.date == null) add(ValidationError(Field.DATE, Reason.REQUIRED))
     }
 }
+
+/** A plausible email for inviting a family member (Google checks the real account at sign-in). */
+object EmailValidator {
+    private val pattern = Regex("""^[^\s@]+@[^\s@]+\.[^\s@]{2,}$""")
+    fun isValid(email: String): Boolean = pattern.matches(email.trim())
+}

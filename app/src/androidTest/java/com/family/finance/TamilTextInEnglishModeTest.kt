@@ -34,7 +34,7 @@ import org.junit.rules.RuleChain
 class TamilTextInEnglishModeTest {
 
     private val setUp = object : ExternalResource() {
-        override fun before() = pinLanguage("en")
+        override fun before() = pinLanguage("ta")
         override fun after() = pinLanguage("ta") // leave the phone in the app's default language
     }
 
@@ -49,8 +49,13 @@ class TamilTextInEnglishModeTest {
         val source = "கூட்டுறவு பால் சங்கம்"
         val notes = "காலை 10 லிட்டர், மாலை 8 லிட்டர் (Rate ₹42)"
 
-        // The interface really is English.
-        compose.onAllNodesWithText("Home").onFirst().assertIsDisplayed()
+        // Switch the app to English the way a user does: More -> Language -> English.
+        compose.onAllNodesWithText(str(R.string.nav_more)).onFirst().performClick()
+        compose.onNodeWithText(str(R.string.more_language)).performClick()
+        compose.onNodeWithText("English").performClick()
+        compose.waitUntil(10_000) { compose.onAllNodesWithText("Home").fetchSemanticsNodes().isNotEmpty() }
+        compose.onAllNodesWithText("Home").onFirst().performClick()
+        compose.waitUntil(10_000) { compose.onAllNodesWithText(str(R.string.action_add_income)).fetchSemanticsNodes().isNotEmpty() }
 
         compose.onNode(hasText(str(R.string.action_add_income)) and hasClickAction()).performClick()
         compose.onNode(hasText(str(R.string.field_amount)) and hasSetTextAction()).performTextInput("1500")
@@ -87,14 +92,15 @@ class TamilTextInEnglishModeTest {
         fun pinLanguage(tag: String) {
             val instrumentation = InstrumentationRegistry.getInstrumentation()
             val context = instrumentation.targetContext
+            // Set both Android's per-app language and AppCompat's own copy, so a language
+            // switched by an earlier test (through AppCompat) cannot win over this one.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 context.getSystemService(LocaleManager::class.java).applicationLocales = LocaleList.forLanguageTags(tag)
-            } else {
-                instrumentation.runOnMainSync {
-                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
-                }
             }
-            val container = (context.applicationContext as FamilyFinanceApplication).container
+            instrumentation.runOnMainSync {
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+            }
+            val container = TestSession.install()
             runBlocking {
                 container.accountService.save(
                     AccountId("ui-test-cash"),

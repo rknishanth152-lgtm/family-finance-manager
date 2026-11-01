@@ -41,14 +41,15 @@ class AppFlowsTest {
         override fun before() {
             val instrumentation = InstrumentationRegistry.getInstrumentation()
             val context = instrumentation.targetContext
+            // Set both Android's per-app language and AppCompat's own copy, so a language
+            // switched by an earlier test (through AppCompat) cannot win over this one.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 context.getSystemService(LocaleManager::class.java).applicationLocales = LocaleList.forLanguageTags("ta")
-            } else {
-                instrumentation.runOnMainSync {
-                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ta"))
-                }
             }
-            val container = (context.applicationContext as FamilyFinanceApplication).container
+            instrumentation.runOnMainSync {
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ta"))
+            }
+            val container = TestSession.install()
             runBlocking {
                 container.accountService.save(
                     AccountId("ui-test-cash"),
@@ -101,7 +102,7 @@ class AppFlowsTest {
     }
 
     @Test fun languageSwitchesToEnglishAndBackWithoutChangingAmounts() {
-        val container = (compose.activity.application as FamilyFinanceApplication).container
+        val container = TestSession.current
         runBlocking {
             container.transactionService.saveIncome(
                 com.family.finance.domain.model.TransactionId("ui-lang-income"),

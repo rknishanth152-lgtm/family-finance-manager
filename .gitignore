@@ -18,3 +18,13 @@ captures/
 # Generated screenshots (regenerate with ScreenTourTest)
 docs/screen-tour/
 
+
+# Firebase config (PRD 4.4: credentials stay out of the repo)
+google-services.json
+
+# Firebase tooling
+firebase/node_modules/
+firebase/*.log
+
+# Local helper for running emulator-backed device tests
+run-sync-tests.cmd

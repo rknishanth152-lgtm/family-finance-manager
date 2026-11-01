@@ -38,6 +38,10 @@ import com.family.finance.ui.common.categoryLabel
 import com.family.finance.ui.common.formatDate
 import com.family.finance.ui.components.AmountSign
 import com.family.finance.ui.components.EmptyState
+import com.family.finance.ui.components.WarningCard
+import com.family.finance.ui.common.currentLocale
+import com.family.finance.domain.model.MoneyFormatter
+import androidx.compose.material3.Button
 import com.family.finance.ui.components.MoneyText
 import com.family.finance.ui.navigation.FormKind
 import com.family.finance.ui.theme.Spacing
@@ -49,11 +53,14 @@ fun TransactionDetailRoute(
     onEdit: (FormKind, TransactionId) -> Unit,
 ) {
     val vm = appViewModel(key = "detail-${id.value}") { c ->
-        TransactionDetailViewModel(id, c.transactionRepository, c.accountRepository, c.categoryRepository, c.transactionService)
+        TransactionDetailViewModel(
+            id, c.transactionRepository, c.accountRepository, c.categoryRepository, c.transactionService,
+            c.familyRepository.observeMembers(),
+        )
     }
     val state by vm.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(state.deleted) { if (state.deleted) onBack() }
-    TransactionDetailScreen(state, onBack, onEdit, vm::delete)
+    TransactionDetailScreen(state, onBack, onEdit, vm::delete, vm::confirmCurrent, vm::restore)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,6 +70,8 @@ fun TransactionDetailScreen(
     onBack: () -> Unit,
     onEdit: (FormKind, TransactionId) -> Unit,
     onConfirmDelete: () -> Unit,
+    onConfirmVersion: () -> Unit = {},
+    onRestore: (Transaction) -> Unit = {},
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     val t = state.transaction
@@ -90,7 +99,9 @@ fun TransactionDetailScreen(
     ) { padding ->
         if (t == null) {
             if (!state.loading) {
-                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(Spacing.md)) {
+                    // Deleted on one phone while edited on the other: offer the edited version back.
+                    if (state.competing.isNotEmpty()) ConflictCard(state, current = null, onConfirmVersion, onRestore)
                     EmptyState(R.drawable.ic_receipt_long, R.string.detail_not_found)
                 }
             }
@@ -104,6 +115,7 @@ fun TransactionDetailScreen(
                 .padding(Spacing.md),
             verticalArrangement = Arrangement.spacedBy(Spacing.md),
         ) {
+            if (state.competing.isNotEmpty()) ConflictCard(state, current = t, onConfirmVersion, onRestore)
             val colors = MaterialTheme.colorScheme
             when (t) {
                 is Transaction.Income -> MoneyText(t.amount, style = MaterialTheme.typography.displaySmall, color = colors.tertiary, sign = AmountSign.PLUS)
@@ -168,4 +180,37 @@ private fun Transaction.typeLabel(): Int = when (this) {
     is Transaction.Income -> R.string.type_income
     is Transaction.Expense -> R.string.type_expense
     is Transaction.Transfer -> R.string.type_transfer
+}
+
+/**
+ * Both phones saved this entry without seeing each other's change (PRD 9.4, 11.5).
+ * Every version is listed; the user confirms the shown one or brings another back.
+ */
+@Composable
+private fun ConflictCard(
+    state: DetailUiState,
+    current: Transaction?,
+    onConfirmVersion: () -> Unit,
+    onRestore: (Transaction) -> Unit,
+) {
+    val time = java.time.format.DateTimeFormatter.ofLocalizedDateTime(java.time.format.FormatStyle.SHORT)
+        .withLocale(currentLocale()).withZone(java.time.ZoneId.systemDefault())
+    WarningCard(
+        title = stringResource(R.string.conflict_detail_title),
+        message = stringResource(R.string.conflict_detail_message),
+    ) {
+        state.competing.forEach { entry ->
+            val who = state.names[entry.editedBy] ?: stringResource(R.string.label_unknown)
+            val what = entry.state?.let { MoneyFormatter.format(it.amount) + " · " + it.title.ifBlank { stringResource(R.string.type_transfer) } }
+                ?: stringResource(R.string.conflict_deleted)
+            Text(stringResource(R.string.conflict_version_line, who, time.format(entry.editedAt), what), style = MaterialTheme.typography.bodyMedium)
+            val version = entry.state
+            if (version != null && version != current) {
+                TextButton(onClick = { onRestore(version) }) { Text(stringResource(R.string.action_use_this_version)) }
+            }
+        }
+        if (current != null) {
+            Button(onClick = onConfirmVersion) { Text(stringResource(R.string.action_confirm_version)) }
+        }
+    }
 }

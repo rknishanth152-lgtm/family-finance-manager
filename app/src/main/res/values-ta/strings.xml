@@ -148,7 +148,6 @@
     <string name="more_recurring">தொடர் பரிவர்த்தனைகள்</string>
     <string name="more_backup">காப்புப்பிரதி மற்றும் மீட்டமைப்பு</string>
     <string name="more_language">மொழி</string>
-    <string name="more_workspace">குடும்பப் பணியிடம்</string>
     <string name="more_privacy">தனியுரிமை மற்றும் பாதுகாப்பு</string>
     <string name="more_about">இந்தச் செயலி பற்றி</string>
     <string name="language_current">தற்போது: %1$s</string>
@@ -211,4 +210,58 @@
     <string name="notes_search_hint">குறிப்புகளில் தேடுக…</string>
     <string name="delete_note_title">இந்தக் குறிப்பை நீக்கவா?</string>
     <string name="delete_note_message">இதைத் திரும்பப் பெற முடியாது. இருப்புகள் பாதிக்கப்படாது.</string>
+    <!-- Sign-in and family -->
+    <string name="signin_message">இந்தப் போனில் உள்ள Google கணக்கில் உள்நுழையவும். இரு பெற்றோரின் போன்களும் ஒரே குடும்பப் பதிவுகளைப் பகிரும்.</string>
+    <string name="action_sign_in_google">Google மூலம் உள்நுழைக</string>
+    <string name="signin_error_network">உள்நுழைய முடியவில்லை. இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயலவும்.</string>
+    <string name="signin_error_no_account">இந்தப் போனில் Google கணக்கு இல்லை. போனின் அமைப்புகளில் கணக்கைச் சேர்த்து மீண்டும் முயலவும்.</string>
+    <string name="signin_error_generic">உள்நுழைய முடியவில்லை. மீண்டும் முயலவும்.</string>
+    <string name="family_setup_title">உங்கள் குடும்பம்</string>
+    <string name="signed_in_as">%1$s ஆக உள்நுழைந்துள்ளீர்கள்</string>
+    <string name="family_invite_message">“%2$s” குடும்பத்தில் சேர %1$s உங்களை அழைத்துள்ளார்.</string>
+    <string name="action_join_family">குடும்பத்தில் சேர்</string>
+    <string name="family_waiting_invite">உங்கள் குடும்பத்தில் சேரக் காத்திருக்கிறீர்களா? %1$s என்பதைச் சேர்க்குமாறு குடும்ப நிர்வாகியிடம் கேட்டு, மீண்டும் சரிபார்க்கவும்.</string>
+    <string name="action_check_again">மீண்டும் சரிபார்</string>
+    <string name="family_create_message">அல்லது புதிய குடும்பத்தைத் தொடங்கவும். பிறகு மேலும் பகுதியிலிருந்து மற்றொரு பெற்றோரைச் சேர்க்கலாம்.</string>
+    <string name="field_family_name">குடும்பத்தின் பெயர்</string>
+    <string name="family_name_default">குடும்பம்</string>
+    <string name="action_create_family">குடும்பத்தை உருவாக்கு</string>
+    <string name="family_error">ஏதோ தவறு நடந்தது. இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயலவும்.</string>
+    <string name="action_sign_out">வெளியேறு</string>
+    <string name="sign_out_title">வெளியேறவா?</string>
+    <string name="sign_out_message">உங்கள் குடும்பப் பதிவுகள் கிளவுடில் பாதுகாப்பாக இருக்கும். அதே Google கணக்கில் மீண்டும் உள்நுழைந்தால் பார்க்கலாம்.</string>
+    <string name="more_family">குடும்ப உறுப்பினர்கள்</string>
+    <string name="family_role_admin">நிர்வாகி</string>
+    <string name="family_role_member">உறுப்பினர்</string>
+    <string name="family_invite_label">குடும்ப உறுப்பினரைச் சேர் (Gmail முகவரி)</string>
+    <string name="family_invite_hint">அந்த Google கணக்கில் இந்த ஆப்பில் உள்நுழைந்ததும் அவர் சேர்ந்துவிடுவார்.</string>
+    <string name="action_invite">அழை</string>
+    <string name="family_pending_invites">அழைக்கப்பட்டவர்கள், இன்னும் சேரவில்லை</string>
+    <string name="action_cancel_invite">அழைப்பை ரத்துசெய்</string>
+    <string name="action_remove_member">நீக்கு</string>
+    <string name="remove_member_title">%1$s-ஐக் குடும்பத்திலிருந்து நீக்கவா?</string>
+    <string name="remove_member_message">அவரால் இனி குடும்பப் பதிவுகளைப் பார்க்க முடியாது. அவர் சேர்த்த பதிவுகள் அப்படியே இருக்கும்.</string>
+    <string name="family_only_admin_invites">குடும்ப நிர்வாகி மட்டுமே உறுப்பினர்களைச் சேர்க்கவோ நீக்கவோ முடியும்.</string>
+    <string name="error_invalid_email">name@gmail.com போன்ற சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.</string>
+
+    <!-- Sync -->
+    <string name="sync_synced">ஒத்திசைக்கப்பட்டது</string>
+    <string name="sync_syncing">ஒத்திசைக்கிறது…</string>
+    <string name="sync_pending">ஒத்திசைக்கக் காத்திருக்கிறது</string>
+    <string name="sync_offline">ஆஃப்லைன்</string>
+    <string name="sync_error">ஒத்திசைவில் சிக்கல்</string>
+
+    <!-- Edited on both phones -->
+    <plurals name="conflict_home_title">
+        <item quantity="one">%d பதிவு இரண்டு போன்களிலும் மாற்றப்பட்டது</item>
+        <item quantity="other">%d பதிவுகள் இரண்டு போன்களிலும் மாற்றப்பட்டன</item>
+    </plurals>
+    <string name="conflict_home_message">இரண்டு பதிப்புகளும் வைக்கப்பட்டுள்ளன. எது சரி என்று சரிபார்க்கவும்.</string>
+    <string name="action_check_now">இப்போது சரிபார்</string>
+    <string name="conflict_detail_title">இரண்டு போன்களிலும் மாற்றப்பட்டது</string>
+    <string name="conflict_detail_message">இந்தப் பதிப்புகள் ஒரே நேரத்தில் சேமிக்கப்பட்டன. கீழே காட்டப்படுவது இப்போது பயன்பாட்டில் உள்ளது. வேறொரு பதிப்பு சரியானால், அதைப் பயன்படுத்தவும்.</string>
+    <string name="conflict_version_line">%1$s, %2$s: %3$s</string>
+    <string name="conflict_deleted">நீக்கப்பட்டது</string>
+    <string name="action_use_this_version">இந்தப் பதிப்பைப் பயன்படுத்து</string>
+    <string name="action_confirm_version">காட்டப்படும் பதிப்பு சரியானது</string>
 </resources>

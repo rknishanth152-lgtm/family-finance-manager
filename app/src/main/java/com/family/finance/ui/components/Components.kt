@@ -19,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.sp
 import com.family.finance.domain.calc.IncomeExpenseTotals
+import com.family.finance.domain.sync.SyncState
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -331,5 +332,47 @@ fun FieldError(@StringRes errorRes: Int?) {
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(start = Spacing.md),
         )
+    }
+}
+
+/** "Synced / Syncing / Waiting / Offline / Problem" (PRD 6.1 item 14, 11.2). Icon + text, never colour alone. */
+@Composable
+fun SyncIndicator(state: SyncState, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+    val (icon, label, tint) = when (state) {
+        SyncState.SYNCED -> Triple(R.drawable.ic_cloud_done, R.string.sync_synced, colors.onSurfaceVariant)
+        SyncState.SYNCING -> Triple(R.drawable.ic_cloud_sync, R.string.sync_syncing, colors.primary)
+        SyncState.PENDING -> Triple(R.drawable.ic_cloud_sync, R.string.sync_pending, colors.primary)
+        SyncState.OFFLINE -> Triple(R.drawable.ic_cloud_off, R.string.sync_offline, colors.onSurfaceVariant)
+        SyncState.ERROR -> Triple(R.drawable.ic_sync_problem, R.string.sync_error, colors.error)
+    }
+    Row(
+        modifier = modifier.padding(horizontal = Spacing.sm).semantics(mergeDescendants = true) {},
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
+    ) {
+        Icon(painterResource(icon), contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
+        Text(stringResource(label), style = MaterialTheme.typography.labelMedium, color = tint, maxLines = 1)
+    }
+}
+
+/** Warning card used for "changed on both phones" (PRD 9.4, 11.5). */
+@Composable
+fun WarningCard(title: String, message: String, modifier: Modifier = Modifier, action: @Composable () -> Unit = {}) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        ),
+    ) {
+        Column(Modifier.padding(Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                Icon(painterResource(R.drawable.ic_warning), contentDescription = null)
+                Text(title, style = MaterialTheme.typography.titleSmall)
+            }
+            Text(message, style = MaterialTheme.typography.bodyMedium)
+            action()
+        }
     }
 }

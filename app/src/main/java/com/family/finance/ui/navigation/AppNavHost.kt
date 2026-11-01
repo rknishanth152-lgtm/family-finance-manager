@@ -50,6 +50,7 @@ import com.family.finance.ui.accounts.AccountEditRoute
 import com.family.finance.ui.accounts.AccountsRoute
 import com.family.finance.ui.calendar.CalendarRoute
 import com.family.finance.ui.categories.CategoriesRoute
+import com.family.finance.ui.family.FamilyRoute
 import com.family.finance.ui.form.TransactionFormRoute
 import com.family.finance.ui.home.HomeRoute
 import com.family.finance.ui.more.MoreScreen
@@ -82,6 +83,7 @@ object Routes {
     const val ACCOUNTS = "accounts"
     const val ACCOUNT_EDIT = "accounts/edit?id={id}"
     const val CATEGORIES = "categories"
+    const val FAMILY = "family"
     const val NOTES = "notes"
     const val NOTE_EDIT = "notes/edit?id={id}"
 
@@ -188,6 +190,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                     onAccounts = { navController.navigate(Routes.ACCOUNTS) },
                     onCategories = { navController.navigate(Routes.CATEGORIES) },
                     onNotebook = { navController.navigate(Routes.NOTES) },
+                    onFamily = { navController.navigate(Routes.FAMILY) },
                 )
             }
             composable(
@@ -229,6 +232,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 )
             }
             composable(Routes.CATEGORIES) { CategoriesRoute(onBack = { navController.popBackStack() }) }
+            composable(Routes.FAMILY) { FamilyRoute(onBack = { navController.popBackStack() }) }
             composable(Routes.NOTES) {
                 NotesRoute(
                     onBack = { navController.popBackStack() },

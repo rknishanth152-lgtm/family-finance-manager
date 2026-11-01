@@ -14,7 +14,8 @@ import com.family.finance.domain.validation.IncomeValidator
 import com.family.finance.domain.validation.TransferDraft
 import com.family.finance.domain.validation.TransferValidator
 import com.family.finance.domain.validation.ValidationError
-import kotlinx.coroutines.flow.first
+import com.family.finance.domain.model.AccountId
+import com.family.finance.domain.model.CategoryId
 import java.time.Clock
 import java.time.Instant
 
@@ -38,7 +39,7 @@ class TransactionService(
 ) {
 
     suspend fun saveIncome(id: TransactionId, draft: IncomeDraft): SaveResult {
-        val errors = IncomeValidator.validate(draft, accountMap(), categoryMap())
+        val errors = IncomeValidator.validate(draft, accountsById(listOf(draft.accountId)), categoriesById(listOf(draft.categoryId)))
         if (errors.isNotEmpty()) return SaveResult.Invalid(errors)
         val (createdBy, createdAt, now) = stamps(id)
         return store(
@@ -59,7 +60,7 @@ class TransactionService(
     }
 
     suspend fun saveExpense(id: TransactionId, draft: ExpenseDraft): SaveResult {
-        val errors = ExpenseValidator.validate(draft, accountMap(), categoryMap())
+        val errors = ExpenseValidator.validate(draft, accountsById(listOf(draft.accountId)), categoriesById(listOf(draft.categoryId)))
         if (errors.isNotEmpty()) return SaveResult.Invalid(errors)
         val (createdBy, createdAt, now) = stamps(id)
         return store(
@@ -80,7 +81,7 @@ class TransactionService(
     }
 
     suspend fun saveTransfer(id: TransactionId, draft: TransferDraft): SaveResult {
-        val errors = TransferValidator.validate(draft, accountMap())
+        val errors = TransferValidator.validate(draft, accountsById(listOf(draft.fromAccountId, draft.toAccountId)))
         if (errors.isNotEmpty()) return SaveResult.Invalid(errors)
         val (createdBy, createdAt, now) = stamps(id)
         val description = draft.description.trim()
@@ -102,6 +103,33 @@ class TransactionService(
 
     suspend fun delete(id: TransactionId) = transactions.delete(id)
 
+    /**
+     * "This version is correct" after both phones edited the same entry: saving it again
+     * starts a newer round of edits, which closes the conflict (PRD 9.4, 11.5).
+     */
+    /** Brings back a version from the edit log, e.g. one deleted on the other phone (PRD 1.4.2). */
+    suspend fun restore(version: Transaction) {
+        transactions.upsert(
+            when (version) {
+                is Transaction.Income -> version.copy(updatedAt = clock.instant())
+                is Transaction.Expense -> version.copy(updatedAt = clock.instant())
+                is Transaction.Transfer -> version.copy(updatedAt = clock.instant())
+            },
+        )
+    }
+
+    suspend fun confirm(id: TransactionId) {
+        val current = transactions.get(id) ?: return
+        val now = clock.instant()
+        transactions.upsert(
+            when (current) {
+                is Transaction.Income -> current.copy(updatedAt = now)
+                is Transaction.Expense -> current.copy(updatedAt = now)
+                is Transaction.Transfer -> current.copy(updatedAt = now)
+            },
+        )
+    }
+
     private suspend fun store(transaction: Transaction): SaveResult {
         transactions.upsert(transaction)
         return SaveResult.Saved(transaction)
@@ -115,6 +143,14 @@ class TransactionService(
         return Stamps(existing?.createdBy ?: currentUser(), existing?.createdAt ?: now, now)
     }
 
-    private suspend fun accountMap() = accounts.observeAll().first().associateBy { it.id }
-    private suspend fun categoryMap() = categories.observeAll().first().associateBy { it.id }
+    /*
+     * Looks up only the records the draft refers to. Reading a whole live list could give
+     * an empty first result on a phone whose local copy is still filling in, which would
+     * wrongly reject a valid account.
+     */
+    private suspend fun accountsById(ids: List<AccountId?>) =
+        ids.filterNotNull().distinct().mapNotNull { accounts.get(it) }.associateBy { it.id }
+
+    private suspend fun categoriesById(ids: List<CategoryId?>) =
+        ids.filterNotNull().distinct().mapNotNull { categories.get(it) }.associateBy { it.id }
 }

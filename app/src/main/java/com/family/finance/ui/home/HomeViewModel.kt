@@ -15,7 +15,12 @@ import com.family.finance.domain.repository.AccountRepository
 import com.family.finance.domain.repository.CategoryRepository
 import com.family.finance.domain.repository.TransactionRepository
 import com.family.finance.domain.usecase.TransactionQuery
+import com.family.finance.domain.model.TransactionId
+import com.family.finance.domain.sync.ConflictDetector
+import com.family.finance.domain.sync.SyncState
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -34,6 +39,9 @@ data class HomeUiState(
     val recent: List<Transaction> = emptyList(),
     val accounts: Map<AccountId, Account> = emptyMap(),
     val categories: Map<CategoryId, Category> = emptyMap(),
+    val sync: SyncState = SyncState.SYNCING,
+    /** Entries edited on both phones without seeing each other's change (PRD 9.4). */
+    val conflicted: List<TransactionId> = emptyList(),
 ) {
     val hasAccounts: Boolean get() = accounts.isNotEmpty()
 }
@@ -43,13 +51,18 @@ class HomeViewModel(
     accounts: AccountRepository,
     categories: CategoryRepository,
     private val today: () -> LocalDate,
+    syncState: Flow<SyncState> = flowOf(SyncState.SYNCED),
 ) : ViewModel() {
 
     private val period = MutableStateFlow(ReportingPeriod.thisMonth(today()))
 
+    private val status = combine(syncState, transactions.observeEditLog()) { sync, log ->
+        sync to log.filterValues { ConflictDetector.hasConflict(it) }.keys.toList()
+    }
+
     val uiState: StateFlow<HomeUiState> = combine(
-        period, transactions.observeAll(), accounts.observeAll(), categories.observeAll(),
-    ) { period, txns, accts, cats ->
+        period, transactions.observeAll(), accounts.observeAll(), categories.observeAll(), status,
+    ) { period, txns, accts, cats, (sync, conflicted) ->
         HomeUiState(
             loading = false,
             period = period,
@@ -58,6 +71,8 @@ class HomeViewModel(
             recent = TransactionQuery().apply(txns).take(RECENT_COUNT),
             accounts = accts.associateBy { it.id },
             categories = cats.associateBy { it.id },
+            sync = sync,
+            conflicted = conflicted,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState(period = period.value))
 
