@@ -1,5 +1,7 @@
 package com.family.finance.ui.categories
 
+import com.family.finance.ui.theme.Spacing
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -102,7 +104,7 @@ fun CategoriesRoute(onBack: () -> Unit) {
                 Tab(selected = kind == CategoryKind.EXPENSE, onClick = { kind = CategoryKind.EXPENSE }, text = { Text(stringResource(R.string.type_expense)) })
                 Tab(selected = kind == CategoryKind.INCOME, onClick = { kind = CategoryKind.INCOME }, text = { Text(stringResource(R.string.type_income)) })
             }
-            LazyColumn(Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = Spacing.fabClearance)) {
                 items(labelled.filter { !it.first.isArchived }, key = { it.first.id.value }) { (c, label) ->
                     ListItem(
                         headlineContent = { Text(label) },

@@ -30,7 +30,9 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
+import kotlin.math.min
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -56,6 +58,8 @@ import com.family.finance.ui.notes.NotesRoute
 import com.family.finance.ui.screens.PlaceholderScreen
 import com.family.finance.ui.transactions.TransactionDetailRoute
 import com.family.finance.ui.transactions.TransactionsRoute
+
+private const val NAV_LABEL_MAX_SCALE = 1.15f
 
 enum class FormKind(val route: String) { INCOME("income"), EXPENSE("expense"), TRANSFER("transfer") }
 
@@ -123,8 +127,12 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                             // The label already names the item, so the icon is decorative.
                             icon = { Icon(painterResource(destination.iconRes), contentDescription = null) },
                             // Long single Tamil words must not be cut or split (PRD 6.1):
-                            // one line, shrinking only as far as needed to fit.
+                            // one line, shrinking only as far as needed to fit. Five tabs
+                            // cannot hold 2x-size labels, so they follow the phone's font
+                            // size only up to NAV_LABEL_MAX_SCALE; the icons stay as cues.
                             label = {
+                                val fontScale = LocalDensity.current.fontScale
+                                val cap = min(fontScale, NAV_LABEL_MAX_SCALE) / fontScale
                                 BasicText(
                                     stringResource(destination.labelRes),
                                     style = MaterialTheme.typography.labelMedium.copy(
@@ -132,7 +140,12 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                                         textAlign = TextAlign.Center,
                                     ),
                                     maxLines = 1,
-                                    autoSize = TextAutoSize.StepBased(minFontSize = 9.sp, maxFontSize = 12.sp, stepSize = 0.5.sp),
+                                    softWrap = false,
+                                    autoSize = TextAutoSize.StepBased(
+                                        minFontSize = 7.5.sp * cap,
+                                        maxFontSize = 12.sp * cap,
+                                        stepSize = 0.25.sp,
+                                    ),
                                 )
                             },
                         )

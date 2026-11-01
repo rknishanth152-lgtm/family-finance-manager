@@ -1,5 +1,6 @@
 package com.family.finance.ui.transactions
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -166,7 +167,7 @@ fun TransactionsScreen(
             if (!state.loading && state.items.isEmpty()) {
                 EmptyState(R.drawable.ic_receipt_long, R.string.transactions_empty)
             } else {
-                LazyColumn(Modifier.fillMaxSize()) {
+                LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = Spacing.fabClearance)) {
                     items(state.items, key = { it.id.value }) { t ->
                         TransactionRow(t, state.categories, state.accounts, onClick = { onOpenTransaction(t.id) })
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

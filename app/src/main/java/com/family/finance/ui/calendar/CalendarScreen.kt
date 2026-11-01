@@ -1,5 +1,6 @@
 package com.family.finance.ui.calendar
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +16,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Card
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,6 +52,7 @@ import com.family.finance.ui.common.formatDate
 import com.family.finance.ui.common.formatMonth
 import com.family.finance.ui.components.AmountSign
 import com.family.finance.ui.components.EmptyState
+import com.family.finance.ui.components.isLargeFont
 import com.family.finance.ui.components.MoneyText
 import com.family.finance.ui.components.TransactionRow
 import com.family.finance.ui.theme.Spacing
@@ -72,7 +77,7 @@ fun CalendarScreen(
     onOpenTransaction: (TransactionId) -> Unit,
 ) {
     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.nav_calendar)) }) }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = Spacing.fabClearance)) {
             item {
                 Row(Modifier.fillMaxWidth().padding(horizontal = Spacing.sm), verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onPrevious) {
@@ -110,13 +115,17 @@ private fun MonthGrid(state: CalendarUiState, onSelect: (LocalDate) -> Unit) {
     val cells: List<LocalDate?> = List(leading) { null } + (1..state.month.lengthOfMonth()).map { state.month.atDay(it) }
     Column(Modifier.padding(horizontal = Spacing.sm)) {
         Row(Modifier.fillMaxWidth()) {
+            // Large fonts: one-letter weekday names (as on printed Tamil calendars), and shrink if still needed.
+            val nameStyle = if (isLargeFont()) TextStyle.NARROW else TextStyle.SHORT
+            val headerStyle = MaterialTheme.typography.labelSmall
             DayOfWeek.entries.forEach { dow ->
-                Text(
-                    dow.getDisplayName(TextStyle.SHORT, locale),
+                BasicText(
+                    dow.getDisplayName(nameStyle, locale),
                     modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = headerStyle.copy(color = LocalContentColor.current, textAlign = TextAlign.Center),
                     maxLines = 1,
+                    softWrap = false,
+                    autoSize = TextAutoSize.StepBased(minFontSize = headerStyle.fontSize * 0.6f, maxFontSize = headerStyle.fontSize),
                 )
             }
         }

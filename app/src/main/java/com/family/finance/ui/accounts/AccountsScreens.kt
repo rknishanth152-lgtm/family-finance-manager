@@ -1,5 +1,8 @@
 package com.family.finance.ui.accounts
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +27,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -70,7 +77,7 @@ fun AccountsRoute(onBack: () -> Unit, onAdd: () -> Unit, onEdit: (AccountId) -> 
             )
         },
     ) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = Spacing.fabClearance)) {
             item {
                 Card(Modifier.fillMaxWidth().padding(Spacing.md)) {
                     Column(Modifier.padding(Spacing.md)) {
@@ -84,18 +91,32 @@ fun AccountsRoute(onBack: () -> Unit, onAdd: () -> Unit, onEdit: (AccountId) -> 
             }
             items(state.active, key = { it.account.id.value }) { row ->
                 AccountListItem(row, onClick = { onEdit(row.account.id) }) {
-                    TextButton(onClick = { vm.setActive(row.account.id, false) }) { Text(stringResource(R.string.action_archive)) }
+                    ArchiveButton(R.drawable.ic_archive, R.string.action_archive) { vm.setActive(row.account.id, false) }
                 }
             }
             if (state.archived.isNotEmpty()) {
                 item { SectionHeader(R.string.accounts_archived) }
                 items(state.archived, key = { it.account.id.value }) { row ->
                     AccountListItem(row, onClick = { onEdit(row.account.id) }) {
-                        TextButton(onClick = { vm.setActive(row.account.id, true) }) { Text(stringResource(R.string.action_restore)) }
+                        ArchiveButton(R.drawable.ic_unarchive, R.string.action_restore) { vm.setActive(row.account.id, true) }
                     }
                 }
             }
         }
+    }
+}
+
+/** Icon-only so long Tamil words don't squeeze the balance; long-press shows the label. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ArchiveButton(@DrawableRes icon: Int, @StringRes label: Int, onClick: () -> Unit) {
+    val text = stringResource(label)
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text(text) } },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = onClick) { Icon(painterResource(icon), contentDescription = text) }
     }
 }
 

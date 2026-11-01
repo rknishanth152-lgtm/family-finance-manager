@@ -13,6 +13,9 @@ object Spacing {
     val lg = 24.dp
     val xl = 32.dp
     val xxl = 48.dp
+
+    /** Bottom padding for lists so the last row can scroll clear of a floating button. */
+    val fabClearance = 96.dp
 }
 
 @Composable

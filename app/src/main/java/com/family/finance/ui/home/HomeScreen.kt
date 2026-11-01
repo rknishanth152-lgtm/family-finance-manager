@@ -1,5 +1,6 @@
 package com.family.finance.ui.home
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -106,6 +107,7 @@ fun HomeScreen(
         }
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(bottom = Spacing.fabClearance),
             verticalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
             item { BalanceCard(state.currentBalance) }
@@ -137,7 +139,6 @@ fun HomeScreen(
             items(state.recent, key = { it.id.value }) { t ->
                 TransactionRow(t, state.categories, state.accounts, onClick = { onOpenTransaction(t.id) })
             }
-            item { Spacer(Modifier.height(Spacing.xxl)) }
         }
     }
 }

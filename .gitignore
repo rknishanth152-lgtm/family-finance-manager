@@ -14,3 +14,7 @@ captures/
 *.db
 *.db-journal
 *.db-wal
+
+# Generated screenshots (regenerate with ScreenTourTest)
+docs/screen-tour/
+

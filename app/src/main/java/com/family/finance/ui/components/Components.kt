@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Card
@@ -80,22 +84,57 @@ fun MoneyText(
         AmountSign.MINUS -> "−$formatted"
         AmountSign.NONE -> formatted
     }
-    Text(text = text, modifier = modifier, style = style, color = color, maxLines = 1)
+    // An amount must never lose digits: shrink (down to 55%) rather than cut, never wrap.
+    val size = style.fontSize
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style.copy(color = color.takeOrElse { LocalContentColor.current }),
+        maxLines = 1,
+        softWrap = false,
+        autoSize = TextAutoSize.StepBased(minFontSize = size * 0.55f, maxFontSize = size, stepSize = 0.5.sp),
+    )
 }
+
+/** At this phone font scale and above, side-by-side layouts switch to stacked rows. */
+const val LARGE_FONT_SCALE = 1.3f
+
+@Composable
+@ReadOnlyComposable
+fun isLargeFont(): Boolean = LocalDensity.current.fontScale >= LARGE_FONT_SCALE
 
 /**
  * Income | Expense | Balance, like the app the family used before. Balance = income - expense
  * and is recalculated from the transactions every time, so it always adds up.
+ * With large phone fonts the three columns become three rows so no amount is cut.
  */
 @Composable
 fun IncomeExpenseStrip(totals: IncomeExpenseTotals, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
     Card(modifier = modifier.fillMaxWidth()) {
-        Row(Modifier.padding(vertical = Spacing.md, horizontal = Spacing.sm)) {
-            StripCell(R.string.summary_income, totals.income, colors.tertiary, Modifier.weight(1f))
-            StripCell(R.string.summary_expense, totals.expense, colors.error, Modifier.weight(1f))
-            StripCell(R.string.summary_balance, totals.balance, colors.onSurface, Modifier.weight(1f))
+        if (isLargeFont()) {
+            Column(Modifier.padding(Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                StripRow(R.string.summary_income, totals.income, colors.tertiary)
+                StripRow(R.string.summary_expense, totals.expense, colors.error)
+                StripRow(R.string.summary_balance, totals.balance, colors.onSurface)
+            }
+        } else {
+            Row(Modifier.padding(vertical = Spacing.md, horizontal = Spacing.sm)) {
+                StripCell(R.string.summary_income, totals.income, colors.tertiary, Modifier.weight(1f))
+                StripCell(R.string.summary_expense, totals.expense, colors.error, Modifier.weight(1f))
+                StripCell(R.string.summary_balance, totals.balance, colors.onSurface, Modifier.weight(1f))
+            }
         }
+    }
+}
+
+@Composable
+private fun StripRow(@StringRes labelRes: Int, amount: Money, color: Color) {
+    val label = stringResource(labelRes)
+    val spoken = "$label ${MoneyFormatter.format(amount)}"
+    Column(Modifier.fillMaxWidth().semantics(mergeDescendants = true) { contentDescription = spoken }) {
+        Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        MoneyText(amount, style = MaterialTheme.typography.titleMedium, color = color)
     }
 }
 

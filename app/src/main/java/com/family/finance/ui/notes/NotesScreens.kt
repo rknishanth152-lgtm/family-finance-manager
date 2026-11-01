@@ -1,5 +1,6 @@
 package com.family.finance.ui.notes
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -83,7 +84,7 @@ fun NotesRoute(onBack: () -> Unit, onAdd: () -> Unit, onOpen: (NoteId) -> Unit) 
             if (!state.loading && state.notes.isEmpty()) {
                 EmptyState(R.drawable.ic_sticky_note_2, R.string.notes_empty)
             }
-            LazyColumn(Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = Spacing.fabClearance)) {
                 items(state.notes, key = { it.id.value }) { note ->
                     ListItem(
                         modifier = Modifier.clickable { onOpen(note.id) },
