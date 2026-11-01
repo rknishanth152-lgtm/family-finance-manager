@@ -8,6 +8,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.Card
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.unit.sp
+import com.family.finance.domain.calc.IncomeExpenseTotals
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -74,6 +81,42 @@ fun MoneyText(
         AmountSign.NONE -> formatted
     }
     Text(text = text, modifier = modifier, style = style, color = color, maxLines = 1)
+}
+
+/**
+ * Income | Expense | Balance, like the app the family used before. Balance = income - expense
+ * and is recalculated from the transactions every time, so it always adds up.
+ */
+@Composable
+fun IncomeExpenseStrip(totals: IncomeExpenseTotals, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colorScheme
+    Card(modifier = modifier.fillMaxWidth()) {
+        Row(Modifier.padding(vertical = Spacing.md, horizontal = Spacing.sm)) {
+            StripCell(R.string.summary_income, totals.income, colors.tertiary, Modifier.weight(1f))
+            StripCell(R.string.summary_expense, totals.expense, colors.error, Modifier.weight(1f))
+            StripCell(R.string.summary_balance, totals.balance, colors.onSurface, Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun StripCell(@StringRes labelRes: Int, amount: Money, color: Color, modifier: Modifier) {
+    val label = stringResource(labelRes)
+    val spoken = "$label ${MoneyFormatter.format(amount)}"
+    Column(
+        modifier = modifier.semantics(mergeDescendants = true) { contentDescription = spoken },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+    ) {
+        Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+        // Large amounts (e.g. ₹3,48,26,190.00) shrink to fit a third of the width instead of being cut.
+        BasicText(
+            text = MoneyFormatter.format(amount),
+            style = MaterialTheme.typography.titleMedium.copy(color = color, textAlign = TextAlign.Center),
+            maxLines = 1,
+            autoSize = TextAutoSize.StepBased(minFontSize = 10.sp, maxFontSize = 18.sp, stepSize = 0.5.sp),
+        )
+    }
 }
 
 @Composable

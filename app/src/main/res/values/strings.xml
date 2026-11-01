@@ -59,7 +59,7 @@
     <string name="home_no_transactions">No transactions yet. Use Add income or Add expense to record one.</string>
     <string name="summary_income">Income</string>
     <string name="summary_expense">Expenses</string>
-    <string name="summary_net">Net cash flow</string>
+    <string name="summary_balance">Balance</string>
     <string name="summary_opening">Opening balance</string>
     <string name="summary_closing">Closing balance</string>
 
@@ -151,6 +151,10 @@
     <string name="more_workspace">Family workspace</string>
     <string name="more_privacy">Privacy and security</string>
     <string name="more_about">About this app</string>
+    <string name="language_current">Currently: %1$s</string>
+    <!-- Each language is always shown in its own script, whatever the app language. -->
+    <string name="language_tamil" translatable="false">தமிழ்</string>
+    <string name="language_english" translatable="false">English</string>
 
     <!-- Accounts -->
     <string name="account_edit_title">Edit account</string>

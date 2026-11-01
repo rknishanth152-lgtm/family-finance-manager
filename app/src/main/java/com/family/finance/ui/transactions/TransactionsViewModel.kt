@@ -3,6 +3,7 @@ package com.family.finance.ui.transactions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.family.finance.domain.calc.DateRange
+import com.family.finance.domain.calc.IncomeExpenseTotals
 import com.family.finance.domain.model.Account
 import com.family.finance.domain.model.AccountId
 import com.family.finance.domain.model.Category
@@ -67,6 +68,8 @@ data class TransactionsUiState(
     val loading: Boolean = true,
     val filter: FilterInput = FilterInput(),
     val items: List<Transaction> = emptyList(),
+    /** Totals of exactly the transactions shown, so they follow every search and filter. */
+    val totals: IncomeExpenseTotals = IncomeExpenseTotals.ZERO,
     val accounts: Map<AccountId, Account> = emptyMap(),
     val categories: Map<CategoryId, Category> = emptyMap(),
 )
@@ -85,10 +88,12 @@ class TransactionsViewModel(
     val uiState: StateFlow<TransactionsUiState> = combine(
         filter, transactions.observeAll(), accounts.observeAll(), categories.observeAll(), categoryNames,
     ) { f, txns, accts, cats, names ->
+        val items = f.toQuery().apply(txns) { names[it].orEmpty() }
         TransactionsUiState(
             loading = false,
             filter = f,
-            items = f.toQuery().apply(txns) { names[it].orEmpty() },
+            items = items,
+            totals = IncomeExpenseTotals.of(items),
             accounts = accts.associateBy { it.id },
             categories = cats.associateBy { it.id },
         )

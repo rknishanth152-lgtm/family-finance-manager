@@ -46,7 +46,9 @@ import com.family.finance.domain.model.TransactionId
 import com.family.finance.ui.common.appViewModel
 import com.family.finance.ui.common.periodLabel
 import com.family.finance.ui.components.AmountSign
+import com.family.finance.domain.calc.IncomeExpenseTotals
 import com.family.finance.ui.components.EmptyState
+import com.family.finance.ui.components.IncomeExpenseStrip
 import com.family.finance.ui.components.MoneyText
 import com.family.finance.ui.components.SectionHeader
 import com.family.finance.ui.components.TransactionRow
@@ -89,7 +91,9 @@ fun HomeScreen(
     onAddAccount: () -> Unit,
 ) {
     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) }) { padding ->
-        if (!state.loading && !state.hasAccounts) {
+        // Draw nothing until data arrives, so the dashboard never flashes before the empty state.
+        if (state.loading) return@Scaffold
+        if (!state.hasAccounts) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 EmptyState(
                     iconRes = R.drawable.ic_account_balance_wallet,
@@ -108,14 +112,12 @@ fun HomeScreen(
             item { PeriodSelector(state, onPrevious, onNext, onSelectPeriod) }
             state.summary?.let { summary ->
                 item {
-                    SummaryCard(
-                        income = summary.totalIncome,
-                        expense = summary.totalExpense,
-                        net = summary.netCashFlow,
-                        opening = summary.openingBalance,
-                        closing = summary.closingBalance,
+                    IncomeExpenseStrip(
+                        IncomeExpenseTotals(summary.totalIncome, summary.totalExpense),
+                        Modifier.padding(horizontal = Spacing.md),
                     )
                 }
+                item { OpeningClosingCard(opening = summary.openingBalance, closing = summary.closingBalance) }
             }
             item { QuickActions(onAddTransaction) }
             item {
@@ -202,12 +204,9 @@ private fun PeriodKind.labelRes(): Int = when (this) {
 }
 
 @Composable
-private fun SummaryCard(income: Money, expense: Money, net: Money, opening: Money, closing: Money) {
+private fun OpeningClosingCard(opening: Money, closing: Money) {
     Card(Modifier.fillMaxWidth().padding(horizontal = Spacing.md)) {
         Column(Modifier.padding(Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-            SummaryLine(R.string.summary_income, income, MaterialTheme.colorScheme.tertiary, AmountSign.PLUS)
-            SummaryLine(R.string.summary_expense, expense, MaterialTheme.colorScheme.error, AmountSign.MINUS)
-            SummaryLine(R.string.summary_net, net)
             SummaryLine(R.string.summary_opening, opening)
             SummaryLine(R.string.summary_closing, closing)
         }

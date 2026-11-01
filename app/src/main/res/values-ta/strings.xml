@@ -4,7 +4,7 @@
 
     <!-- Navigation -->
     <string name="nav_home">முகப்பு</string>
-    <string name="nav_transactions">பரிவர்த்தனைகள்</string>
+    <string name="nav_transactions">பரிவர்த்தனை</string>
     <string name="nav_calendar">நாள்காட்டி</string>
     <string name="nav_reports">அறிக்கைகள்</string>
     <string name="nav_more">மேலும்</string>
@@ -37,19 +37,19 @@
     <string name="action_rename">பெயர் மாற்று</string>
     <string name="action_archive">காப்பகப்படுத்து</string>
     <string name="action_restore">மீட்டெடு</string>
-    <string name="action_see_all">அனைத்தும் பார்</string>
+    <string name="action_see_all">அனைத்தையும் காட்டு</string>
     <string name="action_sort">வரிசைப்படுத்து</string>
     <string name="action_filters">வடிகட்டிகள்</string>
     <string name="action_clear_filters">வடிகட்டிகளை நீக்கு</string>
     <string name="action_clear_search">தேடலை அழி</string>
-    <string name="action_choose_date">தேதியைத் தேர்ந்தெடு</string>
+    <string name="action_choose_date">தேதியைத் தேர்வுசெய்க</string>
     <string name="action_choose_period">காலத்தைத் தேர்ந்தெடு</string>
     <string name="action_previous_period">முந்தைய காலம்</string>
     <string name="action_next_period">அடுத்த காலம்</string>
     <string name="action_previous_month">முந்தைய மாதம்</string>
     <string name="action_next_month">அடுத்த மாதம்</string>
-    <string name="action_more_options">மேலும் விவரங்கள்</string>
-    <string name="action_fewer_options">குறைவான விவரங்கள்</string>
+    <string name="action_more_options">மேலும் விருப்பங்கள்</string>
+    <string name="action_fewer_options">குறைவான விருப்பங்கள்</string>
 
     <!-- Home -->
     <string name="home_total_balance">மொத்த இருப்பு</string>
@@ -59,7 +59,7 @@
     <string name="home_no_transactions">இன்னும் பரிவர்த்தனைகள் இல்லை. பதிவு செய்ய வரவு சேர் அல்லது செலவு சேர் என்பதைப் பயன்படுத்தவும்.</string>
     <string name="summary_income">வரவு</string>
     <string name="summary_expense">செலவுகள்</string>
-    <string name="summary_net">நிகர பணப்புழக்கம்</string>
+    <string name="summary_balance">மீதம்</string>
     <string name="summary_opening">தொடக்க இருப்பு</string>
     <string name="summary_closing">இறுதி இருப்பு</string>
 
@@ -112,7 +112,7 @@
 
     <!-- Transactions list -->
     <string name="filter_all">அனைத்தும்</string>
-    <string name="search_hint">தலைப்பு, குறிப்பு, வகை தேடு…</string>
+    <string name="search_hint">தலைப்பு, குறிப்பு, வகையில் தேடுக…</string>
     <string name="transactions_empty">பொருந்தும் பரிவர்த்தனைகள் இல்லை.</string>
     <string name="sort_newest">புதியவை முதலில்</string>
     <string name="sort_oldest">பழையவை முதலில்</string>
@@ -151,6 +151,7 @@
     <string name="more_workspace">குடும்பப் பணியிடம்</string>
     <string name="more_privacy">தனியுரிமை மற்றும் பாதுகாப்பு</string>
     <string name="more_about">இந்தச் செயலி பற்றி</string>
+    <string name="language_current">தற்போது: %1$s</string>
 
     <!-- Accounts -->
     <string name="account_edit_title">கணக்கைத் திருத்து</string>
@@ -207,7 +208,7 @@
     <!-- Notebook -->
     <string name="note_edit_title">குறிப்பைத் திருத்து</string>
     <string name="notes_empty">இன்னும் குறிப்புகள் இல்லை.</string>
-    <string name="notes_search_hint">குறிப்புகளில் தேடு</string>
+    <string name="notes_search_hint">குறிப்புகளில் தேடுக…</string>
     <string name="delete_note_title">இந்தக் குறிப்பை நீக்கவா?</string>
     <string name="delete_note_message">இதைத் திரும்பப் பெற முடியாது. இருப்புகள் பாதிக்கப்படாது.</string>
 </resources>

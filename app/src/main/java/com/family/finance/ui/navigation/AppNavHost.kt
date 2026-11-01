@@ -25,7 +25,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -117,7 +122,19 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                             },
                             // The label already names the item, so the icon is decorative.
                             icon = { Icon(painterResource(destination.iconRes), contentDescription = null) },
-                            label = { Text(stringResource(destination.labelRes), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                            // Long single Tamil words must not be cut or split (PRD 6.1):
+                            // one line, shrinking only as far as needed to fit.
+                            label = {
+                                BasicText(
+                                    stringResource(destination.labelRes),
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        color = LocalContentColor.current,
+                                        textAlign = TextAlign.Center,
+                                    ),
+                                    maxLines = 1,
+                                    autoSize = TextAutoSize.StepBased(minFontSize = 9.sp, maxFontSize = 12.sp, stepSize = 0.5.sp),
+                                )
+                            },
                         )
                     }
                 }

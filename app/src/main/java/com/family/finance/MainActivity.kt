@@ -11,8 +11,10 @@ import com.family.finance.ui.theme.FamilyFinanceTheme
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        DefaultLanguage.applyIfUnset()
         super.onCreate(savedInstanceState)
+        // Must run after super.onCreate: on API 33+ AppCompat ignores the call until the
+        // activity's delegate exists. Applying it recreates the activity once, in Tamil.
+        DefaultLanguage.applyIfUnset()
         enableEdgeToEdge()
         val container = (application as FamilyFinanceApplication).container
         setContent {

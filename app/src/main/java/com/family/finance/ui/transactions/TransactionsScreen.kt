@@ -53,6 +53,7 @@ import com.family.finance.ui.common.categoryLabel
 import com.family.finance.ui.components.ChoiceChips
 import com.family.finance.ui.components.DateField
 import com.family.finance.ui.components.EmptyState
+import com.family.finance.ui.components.IncomeExpenseStrip
 import com.family.finance.ui.components.TransactionRow
 import com.family.finance.ui.theme.Spacing
 
@@ -161,6 +162,7 @@ fun TransactionsScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(Spacing.md),
             )
+            IncomeExpenseStrip(state.totals, Modifier.padding(start = Spacing.md, end = Spacing.md, bottom = Spacing.sm))
             if (!state.loading && state.items.isEmpty()) {
                 EmptyState(R.drawable.ic_receipt_long, R.string.transactions_empty)
             } else {
