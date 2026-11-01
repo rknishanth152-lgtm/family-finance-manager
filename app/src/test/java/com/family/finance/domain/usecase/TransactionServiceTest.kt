@@ -1,0 +1,161 @@
+package com.family.finance.domain.usecase
+
+import com.family.finance.domain.calc.BalanceCalculator
+import com.family.finance.domain.calc.DateRange
+import com.family.finance.domain.calc.PeriodSummary
+import com.family.finance.domain.model.AccountId
+import com.family.finance.domain.model.DefaultCategories
+import com.family.finance.domain.model.Money
+import com.family.finance.domain.model.Transaction
+import com.family.finance.domain.model.TransactionId
+import com.family.finance.domain.validation.ExpenseDraft
+import com.family.finance.domain.validation.Field
+import com.family.finance.domain.validation.IncomeDraft
+import com.family.finance.domain.validation.Reason
+import com.family.finance.domain.validation.TransferDraft
+import com.family.finance.domain.validation.ValidationError
+import com.family.finance.testing.MutableClock
+import com.family.finance.testing.TODAY
+import com.family.finance.testing.account
+import com.family.finance.testing.testContainer
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
+import org.junit.Test
+import java.time.Instant
+import java.time.ZoneOffset
+
+class TransactionServiceTest {
+
+    private val clock = MutableClock(TODAY.atTime(10, 0).toInstant(ZoneOffset.UTC))
+    private val c = testContainer(clock)
+    private val cash = AccountId("cash")
+    private val bank = AccountId("bank")
+    private val salary = DefaultCategories.idFor("salary")
+    private val groceries = DefaultCategories.idFor("groceries")
+    private val march = DateRange(TODAY.withDayOfMonth(1), TODAY.withDayOfMonth(31))
+
+    private suspend fun setUpAccounts() {
+        c.accountRepository.upsert(account("cash", opening = 50_000))
+        c.accountRepository.upsert(account("bank", opening = 100_000))
+    }
+
+    private fun income(amount: String = "5000") =
+        IncomeDraft(amount, "Paddy sale", salary, "Market", TODAY, cash, notes = "நெல் விற்பனை")
+
+    private suspend fun all() = c.transactionRepository.observeAll().first()
+    private suspend fun accounts() = c.accountRepository.observeAll().first()
+
+    @Test fun `saving income stores it with creator and timestamps`() = runTest {
+        setUpAccounts()
+        val id = TransactionId("t1")
+        val result = c.transactionService.saveIncome(id, income())
+
+        assertThat(result).isInstanceOf(SaveResult.Saved::class.java)
+        val saved = c.transactionRepository.get(id) as Transaction.Income
+        assertThat(saved.amount).isEqualTo(Money.ofRupees(5_000))
+        assertThat(saved.notes).isEqualTo("நெல் விற்பனை")
+        assertThat(saved.createdBy).isEqualTo(c.currentUser())
+        assertThat(saved.createdAt).isEqualTo(clock.now)
+    }
+
+    @Test fun `saving the same id twice never duplicates (double tap or retry)`() = runTest {
+        setUpAccounts()
+        val id = TransactionId("t1")
+        c.transactionService.saveIncome(id, income())
+        c.transactionService.saveIncome(id, income())
+
+        assertThat(all()).hasSize(1)
+        assertThat(BalanceCalculator.accountBalance(accounts().first { it.id == cash }, all()))
+            .isEqualTo(Money.ofRupees(55_000))
+    }
+
+    @Test fun `invalid draft stores nothing and returns the errors`() = runTest {
+        setUpAccounts()
+        val result = c.transactionService.saveIncome(TransactionId("t1"), income(amount = "0"))
+
+        assertThat(result).isEqualTo(SaveResult.Invalid(listOf(ValidationError(Field.AMOUNT, Reason.NOT_POSITIVE))))
+        assertThat(all()).isEmpty()
+    }
+
+    @Test fun `editing keeps the original creator and creation time`() = runTest {
+        setUpAccounts()
+        val id = TransactionId("t1")
+        c.transactionService.saveIncome(id, income())
+        val created = clock.now
+        clock.now = Instant.parse("2026-03-20T08:00:00Z")
+
+        c.transactionService.saveIncome(id, income(amount = "6000"))
+
+        val edited = c.transactionRepository.get(id)!!
+        assertThat(edited.createdAt).isEqualTo(created)
+        assertThat(edited.updatedAt).isEqualTo(clock.now)
+        assertThat(edited.amount).isEqualTo(Money.ofRupees(6_000))
+    }
+
+    @Test fun `editing a transaction updates the period report`() = runTest {
+        setUpAccounts()
+        val id = TransactionId("e1")
+        c.transactionService.saveExpense(id, ExpenseDraft("1000", "Seeds", groceries, TODAY, cash))
+        assertThat(PeriodSummary.calculate(accounts(), all(), march).totalExpense).isEqualTo(Money.ofRupees(1_000))
+
+        c.transactionService.saveExpense(id, ExpenseDraft("1500", "Seeds", groceries, TODAY, cash))
+
+        val summary = PeriodSummary.calculate(accounts(), all(), march)
+        assertThat(summary.totalExpense).isEqualTo(Money.ofRupees(1_500))
+        assertThat(summary.closingBalance).isEqualTo(Money.ofRupees(148_500))
+    }
+
+    @Test fun `deleting a transaction updates balances and the report`() = runTest {
+        setUpAccounts()
+        val id = TransactionId("e1")
+        c.transactionService.saveExpense(id, ExpenseDraft("1000", "Seeds", groceries, TODAY, cash))
+        c.transactionService.delete(id)
+
+        val summary = PeriodSummary.calculate(accounts(), all(), march)
+        assertThat(summary.totalExpense).isEqualTo(Money.ZERO)
+        assertThat(BalanceCalculator.accountBalance(accounts().first { it.id == cash }, all()))
+            .isEqualTo(Money.ofRupees(50_000))
+    }
+
+    @Test fun `editing a transfer moves both accounts together and keeps the combined balance`() = runTest {
+        setUpAccounts()
+        val id = TransactionId("tr1")
+        c.transactionService.saveTransfer(id, TransferDraft("20000", cash, bank, TODAY))
+        c.transactionService.saveTransfer(id, TransferDraft("5000", cash, bank, TODAY))
+
+        val accts = accounts()
+        assertThat(BalanceCalculator.accountBalance(accts.first { it.id == cash }, all())).isEqualTo(Money.ofRupees(45_000))
+        assertThat(BalanceCalculator.accountBalance(accts.first { it.id == bank }, all())).isEqualTo(Money.ofRupees(105_000))
+        assertThat(BalanceCalculator.combinedBalance(accts, all())).isEqualTo(Money.ofRupees(150_000))
+    }
+
+    @Test fun `deleting a transfer restores both accounts`() = runTest {
+        setUpAccounts()
+        val id = TransactionId("tr1")
+        c.transactionService.saveTransfer(id, TransferDraft("20000", cash, bank, TODAY))
+        c.transactionService.delete(id)
+
+        val accts = accounts()
+        assertThat(BalanceCalculator.accountBalance(accts.first { it.id == cash }, all())).isEqualTo(Money.ofRupees(50_000))
+        assertThat(BalanceCalculator.accountBalance(accts.first { it.id == bank }, all())).isEqualTo(Money.ofRupees(100_000))
+    }
+
+    @Test fun `transfer description becomes its title and blank fields are stored as null`() = runTest {
+        setUpAccounts()
+        c.transactionService.saveTransfer(TransactionId("tr1"), TransferDraft("100", cash, bank, TODAY, "  "))
+        c.transactionService.saveExpense(TransactionId("e1"), ExpenseDraft("10", "Tea", groceries, TODAY, cash, merchant = " "))
+
+        val transfer = c.transactionRepository.get(TransactionId("tr1")) as Transaction.Transfer
+        val expense = c.transactionRepository.get(TransactionId("e1")) as Transaction.Expense
+        assertThat(transfer.title).isEmpty()
+        assertThat(transfer.notes).isNull()
+        assertThat(expense.merchant).isNull()
+    }
+
+    @Test fun `expense against an archived account is rejected`() = runTest {
+        c.accountRepository.upsert(account("cash", active = false))
+        val result = c.transactionService.saveExpense(TransactionId("e1"), ExpenseDraft("10", "Tea", groceries, TODAY, cash))
+        assertThat(result).isEqualTo(SaveResult.Invalid(listOf(ValidationError(Field.ACCOUNT, Reason.INACTIVE))))
+    }
+}

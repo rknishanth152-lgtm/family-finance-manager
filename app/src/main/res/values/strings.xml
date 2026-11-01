@@ -2,11 +2,212 @@
 <resources>
     <string name="app_name">Family Finance</string>
 
+    <!-- Navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_transactions">Transactions</string>
     <string name="nav_calendar">Calendar</string>
     <string name="nav_reports">Reports</string>
     <string name="nav_more">More</string>
-
     <string name="placeholder_coming_soon">This screen will be built in a later phase.</string>
+
+    <!-- Transaction types -->
+    <string name="type_income">Income</string>
+    <string name="type_expense">Expense</string>
+    <string name="type_transfer">Transfer</string>
+    <string name="transfer_from_to">%1$s → %2$s</string>
+
+    <!-- Actions -->
+    <string name="action_add_transaction">Add transaction</string>
+    <string name="action_add_income">Add income</string>
+    <string name="action_add_expense">Add expense</string>
+    <string name="action_transfer">Transfer</string>
+    <string name="action_add_account">Add account</string>
+    <string name="action_add_category">Add category</string>
+    <string name="action_add_note">Add note</string>
+    <string name="action_add_another">Add another</string>
+    <string name="action_view_transaction">View transaction</string>
+    <string name="action_done">Done</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ok">OK</string>
+    <string name="action_close">Close</string>
+    <string name="action_back">Back</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_archive">Archive</string>
+    <string name="action_restore">Restore</string>
+    <string name="action_see_all">See all</string>
+    <string name="action_sort">Sort</string>
+    <string name="action_filters">Filters</string>
+    <string name="action_clear_filters">Clear filters</string>
+    <string name="action_clear_search">Clear search</string>
+    <string name="action_choose_date">Choose date</string>
+    <string name="action_choose_period">Choose period</string>
+    <string name="action_previous_period">Previous period</string>
+    <string name="action_next_period">Next period</string>
+    <string name="action_previous_month">Previous month</string>
+    <string name="action_next_month">Next month</string>
+    <string name="action_more_options">More options</string>
+    <string name="action_fewer_options">Fewer options</string>
+
+    <!-- Home -->
+    <string name="home_total_balance">Total balance</string>
+    <string name="home_total_balance_hint">All accounts together, as of today</string>
+    <string name="home_recent">Recent transactions</string>
+    <string name="home_no_accounts">Add your first account, such as Cash or a bank account, to start recording money.</string>
+    <string name="home_no_transactions">No transactions yet. Use Add income or Add expense to record one.</string>
+    <string name="summary_income">Income</string>
+    <string name="summary_expense">Expenses</string>
+    <string name="summary_net">Net cash flow</string>
+    <string name="summary_opening">Opening balance</string>
+    <string name="summary_closing">Closing balance</string>
+
+    <!-- Periods -->
+    <string name="period_today">Today</string>
+    <string name="period_this_week">This week</string>
+    <string name="period_this_month">This month</string>
+    <string name="period_last_month">Last month</string>
+    <string name="period_this_year">This year</string>
+    <string name="period_range">%1$s – %2$s</string>
+
+    <!-- Form fields -->
+    <string name="field_amount">Amount</string>
+    <string name="field_title">Title</string>
+    <string name="field_category">Category</string>
+    <string name="field_income_source">Received from</string>
+    <string name="field_merchant">Paid to (shop or person)</string>
+    <string name="field_account">Account</string>
+    <string name="field_from_account">From account</string>
+    <string name="field_to_account">To account</string>
+    <string name="field_date">Date</string>
+    <string name="field_notes">Notes</string>
+    <string name="field_description">Description</string>
+    <string name="field_type">Type</string>
+    <string name="field_account_name">Account name</string>
+    <string name="field_account_type">Account type</string>
+    <string name="field_opening_balance">Opening balance</string>
+    <string name="field_opening_balance_hint">Money in this account on the opening date. Leave empty for zero.</string>
+    <string name="field_opening_date">Opening balance date</string>
+    <string name="field_category_name">Category name</string>
+
+    <string name="form_edit_income">Edit income</string>
+    <string name="form_edit_expense">Edit expense</string>
+    <string name="form_edit_transfer">Edit transfer</string>
+    <string name="form_saved">Saved</string>
+    <string name="form_fix_errors">Please correct the highlighted fields.</string>
+
+    <!-- Validation errors: each says how to fix the problem -->
+    <string name="error_required">Please fill in this field.</string>
+    <string name="error_choose_category">Please choose a category.</string>
+    <string name="error_choose_account">Please choose an account.</string>
+    <string name="error_choose_date">Please choose a date.</string>
+    <string name="error_amount_format">Enter an amount like 250 or 250.50 (at most 2 digits after the point).</string>
+    <string name="error_amount_positive">The amount must be more than zero.</string>
+    <string name="error_not_found">This item no longer exists. Please choose another.</string>
+    <string name="error_account_archived">This account is archived. Choose another or restore it in Accounts.</string>
+    <string name="error_category_archived">This category is archived. Choose another or restore it in Categories.</string>
+    <string name="error_category_wrong_kind">Choose a category of the right type.</string>
+    <string name="error_same_account">Choose a different account from the one money is moving out of.</string>
+
+    <!-- Transactions list -->
+    <string name="filter_all">All</string>
+    <string name="search_hint">Search title, notes, category…</string>
+    <string name="transactions_empty">No transactions match.</string>
+    <string name="sort_newest">Newest first</string>
+    <string name="sort_oldest">Oldest first</string>
+    <string name="sort_amount_high">Highest amount first</string>
+    <string name="sort_amount_low">Lowest amount first</string>
+    <string name="filter_from_date">From date</string>
+    <string name="filter_to_date">To date</string>
+    <string name="filter_min_amount">Min amount</string>
+    <string name="filter_max_amount">Max amount</string>
+
+    <!-- Detail -->
+    <string name="detail_title">Transaction</string>
+    <string name="detail_not_found">This transaction was deleted.</string>
+    <string name="delete_transaction_title">Delete this transaction?</string>
+    <string name="delete_transaction_message">Balances and totals will be updated. This cannot be undone.</string>
+    <string name="label_unknown">Unknown</string>
+
+    <!-- Calendar -->
+    <string name="calendar_net">Net</string>
+    <string name="calendar_no_transactions">No transactions on this day.</string>
+    <plurals name="calendar_day_with_activity">
+        <item quantity="one">%1$s, %2$d transaction</item>
+        <item quantity="other">%1$s, %2$d transactions</item>
+    </plurals>
+
+    <!-- More -->
+    <string name="more_notebook">Notebook</string>
+    <string name="more_accounts">Accounts</string>
+    <string name="more_categories">Categories</string>
+    <string name="more_coming_later">Coming later</string>
+    <string name="more_later_phase">Available in a later update</string>
+    <string name="more_budgets">Budgets</string>
+    <string name="more_recurring">Recurring transactions</string>
+    <string name="more_backup">Backup and restore</string>
+    <string name="more_language">Language</string>
+    <string name="more_workspace">Family workspace</string>
+    <string name="more_privacy">Privacy and security</string>
+    <string name="more_about">About this app</string>
+
+    <!-- Accounts -->
+    <string name="account_edit_title">Edit account</string>
+    <string name="accounts_empty">No accounts yet.</string>
+    <string name="accounts_archived">Archived accounts</string>
+    <string name="account_type_cash">Cash</string>
+    <string name="account_type_savings">Savings account</string>
+    <string name="account_type_current">Current account</string>
+    <string name="account_type_wallet">Digital wallet</string>
+    <string name="account_type_other">Other</string>
+
+    <!-- Categories -->
+    <string name="categories_archived">Archived categories</string>
+    <string name="cat_agricultural_income">Agricultural income</string>
+    <string name="cat_business_income">Business income</string>
+    <string name="cat_salary">Salary</string>
+    <string name="cat_interest_received">Interest received</string>
+    <string name="cat_investment_income">Investment income</string>
+    <string name="cat_family_received">Money from family</string>
+    <string name="cat_loan_received">Loan received</string>
+    <string name="cat_refund">Refund</string>
+    <string name="cat_other_income">Other income</string>
+    <string name="cat_groceries">Groceries</string>
+    <string name="cat_food">Food</string>
+    <string name="cat_household_supplies">Household supplies</string>
+    <string name="cat_electricity">Electricity</string>
+    <string name="cat_water">Water</string>
+    <string name="cat_internet">Internet</string>
+    <string name="cat_mobile_recharge">Mobile recharge</string>
+    <string name="cat_rent">Rent</string>
+    <string name="cat_seeds">Seeds</string>
+    <string name="cat_fertilizers">Fertilizers</string>
+    <string name="cat_pesticides">Pesticides</string>
+    <string name="cat_agri_labour">Agricultural labour</string>
+    <string name="cat_machinery">Machinery</string>
+    <string name="cat_equipment">Equipment</string>
+    <string name="cat_irrigation">Irrigation</string>
+    <string name="cat_transport">Transport</string>
+    <string name="cat_repairs">Repairs</string>
+    <string name="cat_other_agri">Other agricultural expenses</string>
+    <string name="cat_medical">Medical</string>
+    <string name="cat_education">Education</string>
+    <string name="cat_travel">Travel</string>
+    <string name="cat_vehicle_maintenance">Vehicle maintenance</string>
+    <string name="cat_insurance">Insurance</string>
+    <string name="cat_entertainment">Entertainment</string>
+    <string name="cat_gifts">Gifts</string>
+    <string name="cat_other_expenses">Other expenses</string>
+    <string name="cat_loan_principal">Loan principal repayment</string>
+    <string name="cat_loan_interest">Loan interest</string>
+    <string name="cat_bank_charges">Bank charges</string>
+    <string name="cat_taxes">Taxes</string>
+
+    <!-- Notebook -->
+    <string name="note_edit_title">Edit note</string>
+    <string name="notes_empty">No notes yet.</string>
+    <string name="notes_search_hint">Search notes</string>
+    <string name="delete_note_title">Delete this note?</string>
+    <string name="delete_note_message">This cannot be undone. Balances are not affected.</string>
 </resources>

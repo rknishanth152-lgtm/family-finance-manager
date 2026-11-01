@@ -18,6 +18,14 @@ object MoneyFormatter {
         return "$sign$RUPEE_SYMBOL${groupIndian(rupees)}.${paise.toString().padStart(2, '0')}"
     }
 
+    /** Editable form of an amount, e.g. "1250.50"; round-trips through [Money.parse]. */
+    fun plain(money: Money): String {
+        val sign = if (money.isNegative) "-" else ""
+        val rupees = Math.abs(money.paise / Money.PAISE_PER_RUPEE)
+        val paise = Math.abs(money.paise % Money.PAISE_PER_RUPEE)
+        return "$sign$rupees.${paise.toString().padStart(2, '0')}"
+    }
+
     private fun groupIndian(value: Long): String {
         val digits = value.toString()
         if (digits.length <= 3) return digits

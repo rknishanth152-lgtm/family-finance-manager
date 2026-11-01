@@ -1,7 +1,10 @@
 package com.family.finance.domain.validation
 
 /** Which form field failed. The UI maps each (field, reason) pair to a string resource. */
-enum class Field { AMOUNT, TITLE, CATEGORY, INCOME_SOURCE, ACCOUNT, FROM_ACCOUNT, TO_ACCOUNT, DATE }
+enum class Field {
+    AMOUNT, TITLE, CATEGORY, INCOME_SOURCE, ACCOUNT, FROM_ACCOUNT, TO_ACCOUNT, DATE,
+    NAME, OPENING_BALANCE,
+}
 
 enum class Reason {
     REQUIRED,

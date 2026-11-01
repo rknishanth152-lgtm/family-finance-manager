@@ -2,11 +2,212 @@
 <resources>
     <string name="app_name">குடும்ப நிதி</string>
 
+    <!-- Navigation -->
     <string name="nav_home">முகப்பு</string>
     <string name="nav_transactions">பரிவர்த்தனைகள்</string>
     <string name="nav_calendar">நாள்காட்டி</string>
     <string name="nav_reports">அறிக்கைகள்</string>
     <string name="nav_more">மேலும்</string>
-
     <string name="placeholder_coming_soon">இந்தத் திரை அடுத்த கட்டத்தில் உருவாக்கப்படும்.</string>
+
+    <!-- Transaction types -->
+    <string name="type_income">வரவு</string>
+    <string name="type_expense">செலவு</string>
+    <string name="type_transfer">பணமாற்றம்</string>
+    <string name="transfer_from_to">%1$s → %2$s</string>
+
+    <!-- Actions -->
+    <string name="action_add_transaction">பரிவர்த்தனை சேர்</string>
+    <string name="action_add_income">வரவு சேர்</string>
+    <string name="action_add_expense">செலவு சேர்</string>
+    <string name="action_transfer">பணமாற்றம்</string>
+    <string name="action_add_account">கணக்கு சேர்</string>
+    <string name="action_add_category">வகை சேர்</string>
+    <string name="action_add_note">குறிப்பு சேர்</string>
+    <string name="action_add_another">இன்னொன்று சேர்</string>
+    <string name="action_view_transaction">பரிவர்த்தனையைப் பார்</string>
+    <string name="action_done">முடிந்தது</string>
+    <string name="action_save">சேமி</string>
+    <string name="action_cancel">ரத்து செய்</string>
+    <string name="action_ok">சரி</string>
+    <string name="action_close">மூடு</string>
+    <string name="action_back">பின்செல்</string>
+    <string name="action_edit">திருத்து</string>
+    <string name="action_delete">நீக்கு</string>
+    <string name="action_rename">பெயர் மாற்று</string>
+    <string name="action_archive">காப்பகப்படுத்து</string>
+    <string name="action_restore">மீட்டெடு</string>
+    <string name="action_see_all">அனைத்தும் பார்</string>
+    <string name="action_sort">வரிசைப்படுத்து</string>
+    <string name="action_filters">வடிகட்டிகள்</string>
+    <string name="action_clear_filters">வடிகட்டிகளை நீக்கு</string>
+    <string name="action_clear_search">தேடலை அழி</string>
+    <string name="action_choose_date">தேதியைத் தேர்ந்தெடு</string>
+    <string name="action_choose_period">காலத்தைத் தேர்ந்தெடு</string>
+    <string name="action_previous_period">முந்தைய காலம்</string>
+    <string name="action_next_period">அடுத்த காலம்</string>
+    <string name="action_previous_month">முந்தைய மாதம்</string>
+    <string name="action_next_month">அடுத்த மாதம்</string>
+    <string name="action_more_options">மேலும் விவரங்கள்</string>
+    <string name="action_fewer_options">குறைவான விவரங்கள்</string>
+
+    <!-- Home -->
+    <string name="home_total_balance">மொத்த இருப்பு</string>
+    <string name="home_total_balance_hint">இன்றைய நிலவரப்படி அனைத்து கணக்குகளும் சேர்த்து</string>
+    <string name="home_recent">சமீபத்திய பரிவர்த்தனைகள்</string>
+    <string name="home_no_accounts">பணத்தைப் பதிவு செய்யத் தொடங்க, ரொக்கம் அல்லது வங்கிக் கணக்கு போன்ற உங்கள் முதல் கணக்கைச் சேர்க்கவும்.</string>
+    <string name="home_no_transactions">இன்னும் பரிவர்த்தனைகள் இல்லை. பதிவு செய்ய வரவு சேர் அல்லது செலவு சேர் என்பதைப் பயன்படுத்தவும்.</string>
+    <string name="summary_income">வரவு</string>
+    <string name="summary_expense">செலவுகள்</string>
+    <string name="summary_net">நிகர பணப்புழக்கம்</string>
+    <string name="summary_opening">தொடக்க இருப்பு</string>
+    <string name="summary_closing">இறுதி இருப்பு</string>
+
+    <!-- Periods -->
+    <string name="period_today">இன்று</string>
+    <string name="period_this_week">இந்த வாரம்</string>
+    <string name="period_this_month">இந்த மாதம்</string>
+    <string name="period_last_month">கடந்த மாதம்</string>
+    <string name="period_this_year">இந்த ஆண்டு</string>
+    <string name="period_range">%1$s – %2$s</string>
+
+    <!-- Form fields -->
+    <string name="field_amount">தொகை</string>
+    <string name="field_title">தலைப்பு</string>
+    <string name="field_category">வகை</string>
+    <string name="field_income_source">யாரிடமிருந்து பெறப்பட்டது</string>
+    <string name="field_merchant">யாருக்குச் செலுத்தப்பட்டது (கடை அல்லது நபர்)</string>
+    <string name="field_account">கணக்கு</string>
+    <string name="field_from_account">எந்தக் கணக்கிலிருந்து</string>
+    <string name="field_to_account">எந்தக் கணக்கிற்கு</string>
+    <string name="field_date">தேதி</string>
+    <string name="field_notes">குறிப்புகள்</string>
+    <string name="field_description">விவரம்</string>
+    <string name="field_type">வகை</string>
+    <string name="field_account_name">கணக்கின் பெயர்</string>
+    <string name="field_account_type">கணக்கு வகை</string>
+    <string name="field_opening_balance">தொடக்க இருப்பு</string>
+    <string name="field_opening_balance_hint">தொடக்கத் தேதியில் இந்தக் கணக்கில் இருந்த பணம். பூஜ்ஜியம் என்றால் காலியாக விடவும்.</string>
+    <string name="field_opening_date">தொடக்க இருப்புத் தேதி</string>
+    <string name="field_category_name">வகையின் பெயர்</string>
+
+    <string name="form_edit_income">வரவைத் திருத்து</string>
+    <string name="form_edit_expense">செலவைத் திருத்து</string>
+    <string name="form_edit_transfer">பணமாற்றத்தைத் திருத்து</string>
+    <string name="form_saved">சேமிக்கப்பட்டது</string>
+    <string name="form_fix_errors">குறிக்கப்பட்ட புலங்களைச் சரிசெய்யவும்.</string>
+
+    <!-- Validation errors -->
+    <string name="error_required">இந்தப் புலத்தை நிரப்பவும்.</string>
+    <string name="error_choose_category">ஒரு வகையைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="error_choose_account">ஒரு கணக்கைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="error_choose_date">ஒரு தேதியைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="error_amount_format">250 அல்லது 250.50 போல தொகையை உள்ளிடவும் (புள்ளிக்குப் பின் அதிகபட்சம் 2 இலக்கங்கள்).</string>
+    <string name="error_amount_positive">தொகை பூஜ்ஜியத்தை விட அதிகமாக இருக்க வேண்டும்.</string>
+    <string name="error_not_found">இது இப்போது இல்லை. வேறொன்றைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="error_account_archived">இந்தக் கணக்கு காப்பகப்படுத்தப்பட்டுள்ளது. வேறொன்றைத் தேர்ந்தெடுக்கவும் அல்லது கணக்குகளில் மீட்டெடுக்கவும்.</string>
+    <string name="error_category_archived">இந்த வகை காப்பகப்படுத்தப்பட்டுள்ளது. வேறொன்றைத் தேர்ந்தெடுக்கவும் அல்லது வகைகளில் மீட்டெடுக்கவும்.</string>
+    <string name="error_category_wrong_kind">சரியான வகையைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="error_same_account">பணம் வெளியேறும் கணக்கிலிருந்து வேறுபட்ட கணக்கைத் தேர்ந்தெடுக்கவும்.</string>
+
+    <!-- Transactions list -->
+    <string name="filter_all">அனைத்தும்</string>
+    <string name="search_hint">தலைப்பு, குறிப்பு, வகை தேடு…</string>
+    <string name="transactions_empty">பொருந்தும் பரிவர்த்தனைகள் இல்லை.</string>
+    <string name="sort_newest">புதியவை முதலில்</string>
+    <string name="sort_oldest">பழையவை முதலில்</string>
+    <string name="sort_amount_high">அதிக தொகை முதலில்</string>
+    <string name="sort_amount_low">குறைந்த தொகை முதலில்</string>
+    <string name="filter_from_date">தொடக்கத் தேதி</string>
+    <string name="filter_to_date">இறுதித் தேதி</string>
+    <string name="filter_min_amount">குறைந்தபட்சத் தொகை</string>
+    <string name="filter_max_amount">அதிகபட்சத் தொகை</string>
+
+    <!-- Detail -->
+    <string name="detail_title">பரிவர்த்தனை</string>
+    <string name="detail_not_found">இந்தப் பரிவர்த்தனை நீக்கப்பட்டது.</string>
+    <string name="delete_transaction_title">இந்தப் பரிவர்த்தனையை நீக்கவா?</string>
+    <string name="delete_transaction_message">இருப்புகளும் மொத்தங்களும் புதுப்பிக்கப்படும். இதைத் திரும்பப் பெற முடியாது.</string>
+    <string name="label_unknown">தெரியவில்லை</string>
+
+    <!-- Calendar -->
+    <string name="calendar_net">நிகரம்</string>
+    <string name="calendar_no_transactions">இந்த நாளில் பரிவர்த்தனைகள் இல்லை.</string>
+    <plurals name="calendar_day_with_activity">
+        <item quantity="one">%1$s, %2$d பரிவர்த்தனை</item>
+        <item quantity="other">%1$s, %2$d பரிவர்த்தனைகள்</item>
+    </plurals>
+
+    <!-- More -->
+    <string name="more_notebook">குறிப்பேடு</string>
+    <string name="more_accounts">கணக்குகள்</string>
+    <string name="more_categories">வகைகள்</string>
+    <string name="more_coming_later">விரைவில் வரும்</string>
+    <string name="more_later_phase">அடுத்த புதுப்பிப்பில் கிடைக்கும்</string>
+    <string name="more_budgets">வரவுசெலவுத் திட்டங்கள்</string>
+    <string name="more_recurring">தொடர் பரிவர்த்தனைகள்</string>
+    <string name="more_backup">காப்புப்பிரதி மற்றும் மீட்டமைப்பு</string>
+    <string name="more_language">மொழி</string>
+    <string name="more_workspace">குடும்பப் பணியிடம்</string>
+    <string name="more_privacy">தனியுரிமை மற்றும் பாதுகாப்பு</string>
+    <string name="more_about">இந்தச் செயலி பற்றி</string>
+
+    <!-- Accounts -->
+    <string name="account_edit_title">கணக்கைத் திருத்து</string>
+    <string name="accounts_empty">இன்னும் கணக்குகள் இல்லை.</string>
+    <string name="accounts_archived">காப்பகப்படுத்தப்பட்ட கணக்குகள்</string>
+    <string name="account_type_cash">ரொக்கம்</string>
+    <string name="account_type_savings">சேமிப்புக் கணக்கு</string>
+    <string name="account_type_current">நடப்புக் கணக்கு</string>
+    <string name="account_type_wallet">டிஜிட்டல் வாலட்</string>
+    <string name="account_type_other">பிற</string>
+
+    <!-- Categories -->
+    <string name="categories_archived">காப்பகப்படுத்தப்பட்ட வகைகள்</string>
+    <string name="cat_agricultural_income">விவசாய வருமானம்</string>
+    <string name="cat_business_income">வணிக வருமானம்</string>
+    <string name="cat_salary">சம்பளம்</string>
+    <string name="cat_interest_received">பெற்ற வட்டி</string>
+    <string name="cat_investment_income">முதலீட்டு வருமானம்</string>
+    <string name="cat_family_received">குடும்பத்திடமிருந்து பெற்ற பணம்</string>
+    <string name="cat_loan_received">பெற்ற கடன்</string>
+    <string name="cat_refund">திருப்பிப் பெற்ற தொகை</string>
+    <string name="cat_other_income">பிற வருமானம்</string>
+    <string name="cat_groceries">மளிகைப் பொருட்கள்</string>
+    <string name="cat_food">உணவு</string>
+    <string name="cat_household_supplies">வீட்டுப் பொருட்கள்</string>
+    <string name="cat_electricity">மின்சாரம்</string>
+    <string name="cat_water">தண்ணீர்</string>
+    <string name="cat_internet">இணையம்</string>
+    <string name="cat_mobile_recharge">மொபைல் ரீசார்ஜ்</string>
+    <string name="cat_rent">வாடகை</string>
+    <string name="cat_seeds">விதைகள்</string>
+    <string name="cat_fertilizers">உரங்கள்</string>
+    <string name="cat_pesticides">பூச்சிக்கொல்லிகள்</string>
+    <string name="cat_agri_labour">விவசாயக் கூலி</string>
+    <string name="cat_machinery">இயந்திரங்கள்</string>
+    <string name="cat_equipment">உபகரணங்கள்</string>
+    <string name="cat_irrigation">நீர்ப்பாசனம்</string>
+    <string name="cat_transport">போக்குவரத்து</string>
+    <string name="cat_repairs">பழுது நீக்கம்</string>
+    <string name="cat_other_agri">பிற விவசாயச் செலவுகள்</string>
+    <string name="cat_medical">மருத்துவம்</string>
+    <string name="cat_education">கல்வி</string>
+    <string name="cat_travel">பயணம்</string>
+    <string name="cat_vehicle_maintenance">வாகனப் பராமரிப்பு</string>
+    <string name="cat_insurance">காப்பீடு</string>
+    <string name="cat_entertainment">பொழுதுபோக்கு</string>
+    <string name="cat_gifts">பரிசுகள்</string>
+    <string name="cat_other_expenses">பிற செலவுகள்</string>
+    <string name="cat_loan_principal">கடன் அசல் திருப்பிச் செலுத்துதல்</string>
+    <string name="cat_loan_interest">கடன் வட்டி</string>
+    <string name="cat_bank_charges">வங்கிக் கட்டணங்கள்</string>
+    <string name="cat_taxes">வரிகள்</string>
+
+    <!-- Notebook -->
+    <string name="note_edit_title">குறிப்பைத் திருத்து</string>
+    <string name="notes_empty">இன்னும் குறிப்புகள் இல்லை.</string>
+    <string name="notes_search_hint">குறிப்புகளில் தேடு</string>
+    <string name="delete_note_title">இந்தக் குறிப்பை நீக்கவா?</string>
+    <string name="delete_note_message">இதைத் திரும்பப் பெற முடியாது. இருப்புகள் பாதிக்கப்படாது.</string>
 </resources>

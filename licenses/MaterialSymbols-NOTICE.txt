@@ -1,0 +1,2 @@
+Material Symbols vector drawables (res/drawable/ic_*.xml) from https://github.com/google/material-design-icons
+Licensed under the Apache License, Version 2.0.

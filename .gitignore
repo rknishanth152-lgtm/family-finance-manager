@@ -6,3 +6,11 @@ local.properties
 *.iml
 .kotlin/
 captures/
+
+# No license in upstream repo (ceorkm/mobile-app-ui-design): keep local only
+.claude/skills/mobile-app-ui-design/
+
+# Real financial data (legacy app backups) must never be committed
+*.db
+*.db-journal
+*.db-wal
