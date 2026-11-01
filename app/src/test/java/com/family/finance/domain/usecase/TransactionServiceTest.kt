@@ -153,6 +153,21 @@ class TransactionServiceTest {
         assertThat(expense.merchant).isNull()
     }
 
+    @Test fun `typed text is stored exactly as written, in any language, never translated`() = runTest {
+        setUpAccounts()
+        val title = "பால் விற்பனை – Milk sale (சுப்பிரமணி)"
+        val source = "கூட்டுறவு பால் சங்கம்"
+        val notes = "காலை 10 லிட்டர்,\nமாலை 8 லிட்டர் — Rate ₹42"
+        c.transactionService.saveIncome(TransactionId("t1"), IncomeDraft("630", "  $title  ", salary, source, TODAY, cash, notes))
+
+        val saved = c.transactionRepository.get(TransactionId("t1")) as Transaction.Income
+        // Only surrounding spaces are trimmed; every character inside is kept, including line breaks.
+        assertThat(saved.title).isEqualTo(title)
+        assertThat(saved.source).isEqualTo(source)
+        assertThat(saved.notes).isEqualTo(notes)
+        assertThat(saved.title.codePoints().toArray()).isEqualTo(title.codePoints().toArray())
+    }
+
     @Test fun `expense against an archived account is rejected`() = runTest {
         c.accountRepository.upsert(account("cash", active = false))
         val result = c.transactionService.saveExpense(TransactionId("e1"), ExpenseDraft("10", "Tea", groceries, TODAY, cash))
