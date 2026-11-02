@@ -64,7 +64,7 @@ import com.family.finance.ui.common.LocalAppContainer
 import com.family.finance.domain.model.Role
 import com.family.finance.ui.form.TransactionFormRoute
 import com.family.finance.ui.home.HomeRoute
-import com.family.finance.ui.more.MoreScreen
+import com.family.finance.ui.more.MoreRoute
 import com.family.finance.ui.notes.NoteEditRoute
 import com.family.finance.ui.notes.NotesRoute
 import com.family.finance.ui.reports.EntriesFilter
@@ -226,7 +226,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                             TopLevelDestination.TRANSACTIONS -> TransactionsRoute(onOpenTransaction = openDetail)
                             TopLevelDestination.CALENDAR -> CalendarRoute(onOpenTransaction = openDetail)
                             TopLevelDestination.REPORTS -> ReportsRoute(onOpenEntries = { navController.navigate(Routes.reportEntries(it)) })
-                            TopLevelDestination.MORE -> MoreScreen(
+                            TopLevelDestination.MORE -> MoreRoute(
                                 onAccounts = { navController.navigate(Routes.ACCOUNTS) },
                                 onCategories = { navController.navigate(Routes.CATEGORIES) },
                                 onNotebook = { navController.navigate(Routes.NOTES) },

@@ -408,4 +408,15 @@
     <string name="import_wrong_file_title">Not the old app\'s file</string>
     <string name="import_wrong_file">This file is not a backup of the Income Expense app. Nothing was imported.</string>
     <string name="import_failed">The file could not be read. Nothing was imported.</string>
+
+    <!-- Crash log (More) -->
+    <string name="more_crash_log">Crash log</string>
+    <string name="crash_log_none">No crashes recorded</string>
+    <plurals name="crash_log_summary">
+        <item quantity="one">%1$d crash, last on %2$s</item>
+        <item quantity="other">%1$d crashes, last on %2$s</item>
+    </plurals>
+    <string name="crash_log_explain">If the app ever closed by itself, it saved technical details about it on this phone. They contain no amounts, names or notes. Share the file with the person who looks after the app, so they can fix it.</string>
+    <string name="crash_log_share_title">Share crash log</string>
+    <string name="action_clear_crash_log">Clear log</string>
 </resources>

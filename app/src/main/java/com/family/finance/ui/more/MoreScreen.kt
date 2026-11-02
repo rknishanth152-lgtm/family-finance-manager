@@ -33,10 +33,56 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import android.content.ClipData
+import android.content.Context
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.core.content.FileProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.family.finance.AppLanguage
+import com.family.finance.FamilyFinanceApplication
 import com.family.finance.R
+import com.family.finance.ui.common.formatDate
+import java.io.File
 import com.family.finance.ui.components.SectionHeader
 import com.family.finance.ui.theme.Spacing
+
+/** More, with the crash log read from the app's private file. */
+@Composable
+fun MoreRoute(
+    onAccounts: () -> Unit,
+    onCategories: () -> Unit,
+    onNotebook: () -> Unit,
+    onFamily: () -> Unit,
+    onBackup: () -> Unit,
+    onImport: () -> Unit,
+    isAdmin: Boolean,
+) {
+    val context = LocalContext.current
+    val crashLog = (context.applicationContext as FamilyFinanceApplication).crashLog
+    val crashes = viewModel { CrashLogViewModel(crashLog) }
+    val summary by crashes.summary.collectAsStateWithLifecycle()
+    val shareTitle = stringResource(R.string.crash_log_share_title)
+    MoreScreen(
+        onAccounts, onCategories, onNotebook, onFamily, onBackup, onImport, isAdmin,
+        crashSummary = summary,
+        onShareCrashLog = { shareCrashLog(context, crashLog.copyForSharing(), shareTitle) },
+        onClearCrashLog = crashes::clear,
+    )
+}
+
+/** Read access is granted only to the app the person picks, only for this file. */
+private fun shareCrashLog(context: Context, file: File, title: String) {
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.exports", file)
+    val send = Intent(Intent.ACTION_SEND)
+        .setType("text/plain")
+        .putExtra(Intent.EXTRA_STREAM, uri)
+        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    send.clipData = ClipData.newRawUri(file.name, uri)
+    context.startActivity(Intent.createChooser(send, title))
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,8 +95,12 @@ fun MoreScreen(
     onImport: () -> Unit,
     /** Only the family admin may import the old app's records (PRD 13). */
     isAdmin: Boolean,
+    crashSummary: CrashSummary = CrashSummary(0, null),
+    onShareCrashLog: () -> Unit = {},
+    onClearCrashLog: () -> Unit = {},
 ) {
     var choosingLanguage by remember { mutableStateOf(false) }
+    var showingCrashLog by remember { mutableStateOf(false) }
     val current = AppLanguage.current()
 
     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.nav_more)) }) }) { padding ->
@@ -67,6 +117,14 @@ fun MoreScreen(
                 onClick = { choosingLanguage = true },
                 supporting = stringResource(R.string.language_current, stringResource(current.labelRes)),
             )
+            MoreItem(
+                R.drawable.ic_warning,
+                R.string.more_crash_log,
+                onClick = { showingCrashLog = true },
+                supporting = crashSummary.lastCrashDay?.let {
+                    pluralStringResource(R.plurals.crash_log_summary, crashSummary.count, crashSummary.count, formatDate(it))
+                } ?: stringResource(R.string.crash_log_none),
+            )
             HorizontalDivider()
             // PRD 5 lists these; they arrive in later phases and are shown disabled until then.
             SectionHeader(R.string.more_coming_later)
@@ -80,6 +138,27 @@ fun MoreScreen(
                 )
             }
         }
+    }
+
+    if (showingCrashLog) {
+        val hasCrashes = crashSummary.count > 0
+        AlertDialog(
+            onDismissRequest = { showingCrashLog = false },
+            title = { Text(stringResource(R.string.more_crash_log)) },
+            text = { Text(stringResource(if (hasCrashes) R.string.crash_log_explain else R.string.crash_log_none)) },
+            confirmButton = {
+                if (hasCrashes) {
+                    TextButton(onClick = { showingCrashLog = false; onShareCrashLog() }) { Text(stringResource(R.string.action_share)) }
+                } else {
+                    TextButton(onClick = { showingCrashLog = false }) { Text(stringResource(R.string.action_close)) }
+                }
+            },
+            dismissButton = {
+                if (hasCrashes) {
+                    TextButton(onClick = { showingCrashLog = false; onClearCrashLog() }) { Text(stringResource(R.string.action_clear_crash_log)) }
+                }
+            },
+        )
     }
 
     if (choosingLanguage) {

@@ -405,4 +405,15 @@
     <string name="import_wrong_file_title">பழைய செயலியின் கோப்பு அல்ல</string>
     <string name="import_wrong_file">இந்தக் கோப்பு Income Expense செயலியின் காப்புப்பிரதி அல்ல. எதுவும் இறக்கப்படவில்லை.</string>
     <string name="import_failed">கோப்பைப் படிக்க முடியவில்லை. எதுவும் இறக்கப்படவில்லை.</string>
+
+    <!-- Crash log (More) -->
+    <string name="more_crash_log">செயலிழப்பு பதிவு</string>
+    <string name="crash_log_none">செயலிழப்பு எதுவும் பதிவாகவில்லை</string>
+    <plurals name="crash_log_summary">
+        <item quantity="one">%1$d செயலிழப்பு, கடைசியாக %2$s</item>
+        <item quantity="other">%1$d செயலிழப்புகள், கடைசியாக %2$s</item>
+    </plurals>
+    <string name="crash_log_explain">செயலி தானாக மூடப்பட்டால், அதன் தொழில்நுட்ப விவரங்கள் இந்த தொலைபேசியில் சேமிக்கப்படும். இதில் தொகைகள், பெயர்கள் அல்லது குறிப்புகள் எதுவும் இருக்காது. சரிசெய்ய, இந்தக் கோப்பை செயலியைக் கவனிப்பவருடன் பகிருங்கள்.</string>
+    <string name="crash_log_share_title">செயலிழப்பு பதிவைப் பகிர்</string>
+    <string name="action_clear_crash_log">பதிவை அழி</string>
 </resources>
