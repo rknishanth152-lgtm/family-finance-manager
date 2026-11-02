@@ -18,6 +18,7 @@ import androidx.compose.ui.test.Locales
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -152,16 +153,17 @@ class ScreenTourTest {
         compose.waitForIdle()
     }
 
+    /** The tabs share one swipeable screen, so a tab is opened by tapping it in the bottom bar. */
     private fun top(destination: TopLevelDestination) {
-        compose.runOnUiThread {
-            nav.popBackStack(TopLevelDestination.HOME.route, inclusive = false)
-            if (destination != TopLevelDestination.HOME) nav.navigate(destination.route)
-        }
+        compose.runOnUiThread { nav.popBackStack(Routes.TABS, inclusive = false) }
+        compose.waitForIdle()
+        compose.onNode(hasText(str(destination.labelRes)) and hasClickAction()).performClick()
         compose.waitForIdle()
     }
 
     private fun go(route: String) {
-        top(TopLevelDestination.HOME)
+        compose.runOnUiThread { nav.popBackStack(Routes.TABS, inclusive = false) }
+        compose.waitForIdle()
         compose.runOnUiThread { nav.navigate(route) }
         compose.waitForIdle()
     }

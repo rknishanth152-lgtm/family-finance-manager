@@ -32,9 +32,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
+import kotlin.math.abs
 import kotlin.math.min
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import kotlinx.coroutines.launch
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -89,6 +96,8 @@ enum class TopLevelDestination(
 }
 
 object Routes {
+    /** The five top-level screens, side by side: swipe sideways or tap the bottom bar. */
+    const val TABS = "tabs"
     const val FORM = "form/{kind}?id={id}"
     const val DETAIL = "transaction/{id}"
     const val ACCOUNTS = "accounts"
@@ -120,12 +129,22 @@ private val optionalId = navArgument("id") {
 @Composable
 fun AppNavHost(navController: NavHostController = rememberNavController()) {
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = backStackEntry?.destination
-    val onTopLevel = TopLevelDestination.entries.any { top -> currentDestination?.hierarchy?.any { it.route == top.route } == true }
+    val onTopLevel = backStackEntry?.destination?.route == Routes.TABS
     var showAddSheet by remember { mutableStateOf(false) }
 
     val openForm: (FormKind) -> Unit = { navController.navigate(Routes.form(it)) }
     val openDetail: (TransactionId) -> Unit = { navController.navigate(Routes.detail(it)) }
+
+    // Kept here, outside the tabs screen, so the open tab survives a trip to a detail screen.
+    val pagerState = rememberPagerState(pageCount = { TopLevelDestination.entries.size })
+    val scope = rememberCoroutineScope()
+    val goToTab: (TopLevelDestination) -> Unit = { destination ->
+        scope.launch { pagerState.animateToTab(destination.ordinal) }
+    }
+    // While a finger drags, the bar follows the page under it; after a tap or a fling it
+    // jumps straight to where the pager is heading, so it never lags behind the motion.
+    val dragging by pagerState.interactionSource.collectIsDraggedAsState()
+    val selectedTab = if (dragging) pagerState.currentPage else pagerState.targetPage
 
     Scaffold(
         // Each screen draws its own top bar and handles the status bar inset.
@@ -135,14 +154,8 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 NavigationBar {
                     TopLevelDestination.entries.forEach { destination ->
                         NavigationBarItem(
-                            selected = currentDestination?.hierarchy?.any { it.route == destination.route } == true,
-                            onClick = {
-                                navController.navigate(destination.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
+                            selected = selectedTab == destination.ordinal,
+                            onClick = { goToTab(destination) },
                             // The label already names the item, so the icon is decorative.
                             icon = { Icon(painterResource(destination.iconRes), contentDescription = null) },
                             // Long single Tamil words must not be cut or split (PRD 6.1):
@@ -183,26 +196,48 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = TopLevelDestination.HOME.route,
+            startDestination = Routes.TABS,
             modifier = Modifier.padding(innerPadding).consumeWindowInsets(innerPadding),
         ) {
-            composable(TopLevelDestination.HOME.route) {
-                HomeRoute(
-                    onAddTransaction = openForm,
-                    onOpenTransaction = openDetail,
-                    onSeeAll = {
-                        navController.navigate(TopLevelDestination.TRANSACTIONS.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
+            composable(Routes.TABS) {
+                // Back from any other tab returns to Home first, as before.
+                BackHandler(enabled = pagerState.currentPage != TopLevelDestination.HOME.ordinal) {
+                    goToTab(TopLevelDestination.HOME)
+                }
+                // Pages leave the screen as they scroll away; this keeps each one's scroll
+                // position and filters for when it comes back.
+                val pageStates = rememberSaveableStateHolder()
+                HorizontalPager(
+                    state = pagerState,
+                    // The neighbouring tabs are ready before the swipe starts, so the first
+                    // frames of the motion never wait for a screen to be built.
+                    beyondViewportPageCount = 1,
+                    key = { TopLevelDestination.entries[it].route },
+                ) { page ->
+                    val destination = TopLevelDestination.entries[page]
+                    pageStates.SaveableStateProvider(destination.route) {
+                        when (destination) {
+                            TopLevelDestination.HOME -> HomeRoute(
+                                onAddTransaction = openForm,
+                                onOpenTransaction = openDetail,
+                                onSeeAll = { goToTab(TopLevelDestination.TRANSACTIONS) },
+                                onAddAccount = { navController.navigate(Routes.accountEdit()) },
+                            )
+                            TopLevelDestination.TRANSACTIONS -> TransactionsRoute(onOpenTransaction = openDetail)
+                            TopLevelDestination.CALENDAR -> CalendarRoute(onOpenTransaction = openDetail)
+                            TopLevelDestination.REPORTS -> ReportsRoute(onOpenEntries = { navController.navigate(Routes.reportEntries(it)) })
+                            TopLevelDestination.MORE -> MoreScreen(
+                                onAccounts = { navController.navigate(Routes.ACCOUNTS) },
+                                onCategories = { navController.navigate(Routes.CATEGORIES) },
+                                onNotebook = { navController.navigate(Routes.NOTES) },
+                                onFamily = { navController.navigate(Routes.FAMILY) },
+                                onBackup = { navController.navigate(Routes.BACKUP) },
+                                onImport = { navController.navigate(Routes.IMPORT) },
+                                isAdmin = LocalAppContainer.current.familyRepository.me.role == Role.ADMIN,
+                            )
                         }
-                    },
-                    onAddAccount = { navController.navigate(Routes.accountEdit()) },
-                )
-            }
-            composable(TopLevelDestination.TRANSACTIONS.route) { TransactionsRoute(onOpenTransaction = openDetail) }
-            composable(TopLevelDestination.CALENDAR.route) { CalendarRoute(onOpenTransaction = openDetail) }
-            composable(TopLevelDestination.REPORTS.route) {
-                ReportsRoute(onOpenEntries = { navController.navigate(Routes.reportEntries(it)) })
+                    }
+                }
             }
             composable(
                 Routes.REPORT_ENTRIES,
@@ -222,17 +257,6 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                     type = args.getString("type")?.let(TypeFilter::valueOf) ?: TypeFilter.ALL,
                 )
                 ReportEntriesRoute(filter, onBack = { navController.popBackStack() }, onOpenTransaction = openDetail)
-            }
-            composable(TopLevelDestination.MORE.route) {
-                MoreScreen(
-                    onAccounts = { navController.navigate(Routes.ACCOUNTS) },
-                    onCategories = { navController.navigate(Routes.CATEGORIES) },
-                    onNotebook = { navController.navigate(Routes.NOTES) },
-                    onFamily = { navController.navigate(Routes.FAMILY) },
-                    onBackup = { navController.navigate(Routes.BACKUP) },
-                    onImport = { navController.navigate(Routes.IMPORT) },
-                    isAdmin = LocalAppContainer.current.familyRepository.me.role == Role.ADMIN,
-                )
             }
             composable(
                 Routes.FORM,
@@ -301,6 +325,18 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             }
         }
     }
+}
+
+/**
+ * Tapping a far tab (Home to More) would otherwise slide through every screen in between.
+ * Instead, jump silently to the neighbour of the target and slide the last step, so every
+ * tap looks like the same single, short movement.
+ */
+private suspend fun PagerState.animateToTab(page: Int) {
+    if (page == currentPage && !isScrollInProgress) return
+    val from = currentPage
+    if (abs(page - from) > 1) scrollToPage(if (page > from) page - 1 else page + 1)
+    animateScrollToPage(page)
 }
 
 @Composable
