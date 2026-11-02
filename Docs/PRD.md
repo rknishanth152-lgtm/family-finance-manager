@@ -405,13 +405,15 @@ Account-specific balances must reflect transfers into and out of the respective 
 
 * Amount.
 * Transaction title.
-* Income category.
-* Income source.
 * Transaction date.
-* Destination account.
 
 ### Optional Fields
 
+* Income category. Left blank, the entry is saved under the built-in "Other income" category.
+* Income source ("Received from"). Left blank, it stays blank.
+* Destination account. Left blank, the entry is saved to the family's cash account (the
+  oldest active cash account), so balances stay derived from accounts. With no cash
+  account, an account must be picked.
 * Payment method.
 * Description.
 * Tags.
@@ -463,12 +465,12 @@ After saving, the user should be able to:
 
 * Amount.
 * Transaction title.
-* Expense category.
 * Transaction date.
-* Source account.
 
 ### Optional Fields
 
+* Expense category. Left blank, the entry is saved under the built-in "Other expenses" category.
+* Source account. Left blank, the entry is paid from the family's cash account, as for income.
 * Merchant or recipient.
 * Payment method.
 * Description.

@@ -18,7 +18,7 @@ object IncomeValidator {
         checkAmount(draft.amountText)
         checkTitle(draft.title)
         checkCategory(draft.categoryId, CategoryKind.INCOME, categories)
-        if (draft.source.isBlank()) add(ValidationError(Field.INCOME_SOURCE, Reason.REQUIRED))
+        // "Received from" is optional: a blank source is kept blank.
         checkDate(draft.date)
         checkAccount(Field.ACCOUNT, draft.accountId, accounts)
     }

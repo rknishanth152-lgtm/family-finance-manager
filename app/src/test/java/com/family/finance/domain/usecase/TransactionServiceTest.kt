@@ -46,6 +46,40 @@ class TransactionServiceTest {
     private suspend fun all() = c.transactionRepository.observeAll().first()
     private suspend fun accounts() = c.accountRepository.observeAll().first()
 
+    @Test fun `income and expense with no account, category or source go to cash and Other`() = runTest {
+        c.accountRepository.upsert(account("bank", opening = 100_000).copy(type = com.family.finance.domain.model.AccountType.SAVINGS))
+        c.accountRepository.upsert(account("cash", opening = 50_000).copy(createdAt = Instant.parse("2026-01-02T00:00:00Z")))
+        c.accountRepository.upsert(account("cash_new").copy(createdAt = Instant.parse("2026-02-01T00:00:00Z")))
+        c.accountRepository.upsert(account("cash_old_closed", active = false))
+
+        assertThat(c.transactionService.saveIncome(TransactionId("i1"), IncomeDraft("5000", "Paddy sale", null, "", TODAY, null)))
+            .isInstanceOf(SaveResult.Saved::class.java)
+        assertThat(c.transactionService.saveExpense(TransactionId("e1"), ExpenseDraft("1200", "Urea", null, TODAY, null)))
+            .isInstanceOf(SaveResult.Saved::class.java)
+
+        val i1 = c.transactionRepository.get(TransactionId("i1")) as Transaction.Income
+        assertThat(i1.accountId).isEqualTo(cash) // the oldest active cash account
+        assertThat(i1.categoryId).isEqualTo(DefaultCategories.idFor("other_income"))
+        assertThat(i1.source).isEmpty()
+        val e1 = c.transactionRepository.get(TransactionId("e1")) as Transaction.Expense
+        assertThat(e1.accountId).isEqualTo(cash)
+        assertThat(e1.categoryId).isEqualTo(DefaultCategories.idFor("other_expenses"))
+
+        // Balances stay derived from accounts: cash moved by +5000 − 1200, nothing else changed.
+        val byId = accounts().associateBy { it.id }
+        assertThat(BalanceCalculator.accountBalance(byId.getValue(cash), all())).isEqualTo(Money.ofRupees(50_000 + 5_000 - 1_200))
+        assertThat(BalanceCalculator.accountBalance(byId.getValue(bank), all())).isEqualTo(Money.ofRupees(100_000))
+    }
+
+    @Test fun `an account picked by the person is kept, and with no cash account one must be picked`() = runTest {
+        c.accountRepository.upsert(account("bank", opening = 100_000).copy(type = com.family.finance.domain.model.AccountType.SAVINGS))
+        c.transactionService.saveIncome(TransactionId("i1"), IncomeDraft("5000", "Rent", salary, "", TODAY, bank))
+        assertThat((c.transactionRepository.get(TransactionId("i1")) as Transaction.Income).accountId).isEqualTo(bank)
+
+        val result = c.transactionService.saveExpense(TransactionId("e1"), ExpenseDraft("100", "Tea", groceries, TODAY, null))
+        assertThat(result).isEqualTo(SaveResult.Invalid(listOf(ValidationError(Field.ACCOUNT, Reason.REQUIRED))))
+    }
+
     @Test fun `saving income stores it with creator and timestamps`() = runTest {
         setUpAccounts()
         val id = TransactionId("t1")

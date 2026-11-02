@@ -15,7 +15,10 @@ import com.family.finance.domain.validation.TransferDraft
 import com.family.finance.domain.validation.TransferValidator
 import com.family.finance.domain.validation.ValidationError
 import com.family.finance.domain.model.AccountId
+import com.family.finance.domain.model.AccountType
 import com.family.finance.domain.model.CategoryId
+import com.family.finance.domain.model.DefaultCategories
+import kotlinx.coroutines.flow.first
 import java.time.Clock
 import java.time.Instant
 
@@ -38,7 +41,11 @@ class TransactionService(
     private val clock: Clock,
 ) {
 
-    suspend fun saveIncome(id: TransactionId, draft: IncomeDraft): SaveResult {
+    suspend fun saveIncome(id: TransactionId, picked: IncomeDraft): SaveResult {
+        val draft = picked.copy(
+            accountId = picked.accountId ?: cashAccount(),
+            categoryId = picked.categoryId ?: DefaultCategories.idFor("other_income"),
+        )
         val errors = IncomeValidator.validate(draft, accountsById(listOf(draft.accountId)), categoriesById(listOf(draft.categoryId)))
         if (errors.isNotEmpty()) return SaveResult.Invalid(errors)
         val (createdBy, createdAt, now) = stamps(id)
@@ -59,7 +66,11 @@ class TransactionService(
         )
     }
 
-    suspend fun saveExpense(id: TransactionId, draft: ExpenseDraft): SaveResult {
+    suspend fun saveExpense(id: TransactionId, picked: ExpenseDraft): SaveResult {
+        val draft = picked.copy(
+            accountId = picked.accountId ?: cashAccount(),
+            categoryId = picked.categoryId ?: DefaultCategories.idFor("other_expenses"),
+        )
         val errors = ExpenseValidator.validate(draft, accountsById(listOf(draft.accountId)), categoriesById(listOf(draft.categoryId)))
         if (errors.isNotEmpty()) return SaveResult.Invalid(errors)
         val (createdBy, createdAt, now) = stamps(id)
@@ -102,6 +113,18 @@ class TransactionService(
     }
 
     suspend fun delete(id: TransactionId) = transactions.delete(id)
+
+    /**
+     * Account and category may be left blank on income and expense forms. A blank account
+     * counts as cash, so every entry still belongs to an account and balances stay derived
+     * from accounts alone; a blank category becomes the built-in "Other" one. With several
+     * cash accounts the oldest is used; with none, the person must pick an account.
+     */
+    private suspend fun cashAccount(): AccountId? =
+        accounts.observeAll().first()
+            .filter { it.isActive && it.type == AccountType.CASH }
+            .minWithOrNull(compareBy({ it.createdAt }, { it.id.value }))
+            ?.id
 
     /**
      * "This version is correct" after both phones edited the same entry: saving it again

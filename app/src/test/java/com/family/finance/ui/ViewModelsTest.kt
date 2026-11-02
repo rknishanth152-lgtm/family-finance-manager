@@ -81,19 +81,25 @@ class ViewModelsTest {
         val s = vm.state.value
         assertThat(s.fields.amountText).isEqualTo("10.555")
         assertThat(s.fields.title).isEqualTo("சம்பளம்")
-        assertThat(s.errors).containsAtLeast(
-            ValidationError(Field.AMOUNT, Reason.INVALID_FORMAT),
-            ValidationError(Field.CATEGORY, Reason.REQUIRED),
-            ValidationError(Field.ACCOUNT, Reason.REQUIRED),
-        )
+        // Category and account may be left blank; only the bad amount stops the save.
+        assertThat(s.errors).containsExactly(ValidationError(Field.AMOUNT, Reason.INVALID_FORMAT))
         assertThat(txns()).isEmpty()
+    }
+
+    @Test fun `an entry with only amount, title and date can be saved`() = runTest {
+        accounts("cash")
+        val vm = form(FormKind.EXPENSE)
+        vm.edit { it.copy(amountText = "50", title = "Tea") }
+        vm.save()
+        assertThat(vm.state.value.errors).isEmpty()
+        assertThat(txns()).hasSize(1)
     }
 
     @Test fun `changing a field clears only that field's error`() = runTest {
         accounts("cash")
         val vm = form(FormKind.EXPENSE)
         vm.save()
-        assertThat(vm.state.value.errors.map { it.field }).containsAtLeast(Field.AMOUNT, Field.TITLE, Field.CATEGORY)
+        assertThat(vm.state.value.errors.map { it.field }).containsExactly(Field.AMOUNT, Field.TITLE)
 
         vm.edit { it.copy(amountText = "50") }
         assertThat(vm.state.value.errors.map { it.field }).doesNotContain(Field.AMOUNT)

@@ -97,12 +97,12 @@ class ValidatorsTest {
 
     // --- income (PRD 6.2) ---
 
-    @Test fun `income requires title, source, date and account`() {
+    @Test fun `income requires title, date and account, but not who it was received from`() {
+        assertTrue(income(validIncome.copy(source = "  ")).isEmpty())
         val errors = income(validIncome.copy(title = " ", source = "", date = null, accountId = null))
         assertEquals(
             setOf(
                 ValidationError(Field.TITLE, Reason.REQUIRED),
-                ValidationError(Field.INCOME_SOURCE, Reason.REQUIRED),
                 ValidationError(Field.DATE, Reason.REQUIRED),
                 ValidationError(Field.ACCOUNT, Reason.REQUIRED),
             ),
