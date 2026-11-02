@@ -21,6 +21,7 @@ import com.family.finance.domain.model.normalizeEmail
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -42,6 +43,9 @@ import java.time.Clock
 
 /** An invite waiting for the signed-in person, shown on the "join your family" screen. */
 data class PendingInvite(val workspaceId: WorkspaceId, val workspaceName: String, val invitedByName: String)
+
+/** This Google account is not on the list of people allowed to start a family. */
+class NotAllowedToCreateFamily : Exception()
 
 sealed interface SessionState {
     data object Loading : SessionState
@@ -91,11 +95,17 @@ class SessionManager(
         val user = currentUser() ?: return
         val workspace = db.collection("workspaces").document()
         val now = clock.instant().toFirestoreTimestamp()
-        db.batch().apply {
-            set(workspace, mapOf("name" to name.trim(), "createdBy" to user.uid.value, "createdAt" to now, "schemaVersion" to 1L))
-            set(workspace.collection("members").document(user.uid.value), memberFields(user, "admin", now))
-            set(db.collection("users").document(user.uid.value), mapOf("workspaceId" to workspace.id, "updatedAt" to now))
-        }.commit().await()
+        try {
+            db.batch().apply {
+                set(workspace, mapOf("name" to name.trim(), "createdBy" to user.uid.value, "createdAt" to now, "schemaVersion" to 1L))
+                set(workspace.collection("members").document(user.uid.value), memberFields(user, "admin", now))
+                set(db.collection("users").document(user.uid.value), mapOf("workspaceId" to workspace.id, "updatedAt" to now))
+            }.commit().await()
+        } catch (e: FirebaseFirestoreException) {
+            // Only Google accounts on the founders allowlist may start a family (firestore.rules).
+            if (e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) throw NotAllowedToCreateFamily()
+            throw e
+        }
     }
 
     /** The invited person joins as a member and uses up the invite. */
@@ -147,6 +157,10 @@ class SessionManager(
             val me = member?.toMember()
             when {
                 me == null || workspace == null || !workspace.exists() -> if (member?.metadata?.isFromCache != false) SessionState.Loading else null
+                // Just created or joined on this phone and not yet confirmed by the cloud: opening
+                // the family now would make its first reads before membership exists there, and
+                // the cloud would refuse them. An existing family opens at once, even offline.
+                member.metadata.hasPendingWrites() || workspace.metadata.hasPendingWrites() -> SessionState.Loading
                 !me.active -> null // removed by the admin
                 else -> SessionState.Ready(containerFor(Key(user, Workspace(workspaceId, workspace.getString("name").orEmpty()), me)))
             }

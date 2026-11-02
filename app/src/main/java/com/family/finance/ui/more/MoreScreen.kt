@@ -45,6 +45,10 @@ fun MoreScreen(
     onCategories: () -> Unit,
     onNotebook: () -> Unit,
     onFamily: () -> Unit,
+    onBackup: () -> Unit,
+    onImport: () -> Unit,
+    /** Only the family admin may import the old app's records (PRD 13). */
+    isAdmin: Boolean,
 ) {
     var choosingLanguage by remember { mutableStateOf(false) }
     val current = AppLanguage.current()
@@ -55,6 +59,8 @@ fun MoreScreen(
             MoreItem(R.drawable.ic_account_balance_wallet, R.string.more_accounts, onAccounts)
             MoreItem(R.drawable.ic_category, R.string.more_categories, onCategories)
             MoreItem(R.drawable.ic_group, R.string.more_family, onFamily)
+            MoreItem(R.drawable.ic_archive, R.string.more_backup, onBackup)
+            if (isAdmin) MoreItem(R.drawable.ic_unarchive, R.string.more_import, onImport)
             MoreItem(
                 R.drawable.ic_language,
                 R.string.more_language,
@@ -65,7 +71,7 @@ fun MoreScreen(
             // PRD 5 lists these; they arrive in later phases and are shown disabled until then.
             SectionHeader(R.string.more_coming_later)
             listOf(
-                R.string.more_budgets, R.string.more_recurring, R.string.more_backup,
+                R.string.more_budgets, R.string.more_recurring,
                 R.string.more_privacy, R.string.more_about,
             ).forEach { label ->
                 ListItem(

@@ -1,5 +1,6 @@
 package com.family.finance.data
 
+import com.family.finance.domain.backup.BackupService
 import com.family.finance.domain.model.DefaultCategories
 import com.family.finance.domain.model.UserId
 import com.family.finance.domain.repository.AccountRepository
@@ -42,6 +43,9 @@ class AppContainer(
     val accountService = AccountService(accountRepository, clock)
     val categoryService = CategoryService(categoryRepository)
     val noteService = NoteService(noteRepository, currentUser, clock)
+    val backupService = BackupService(
+        transactionRepository, accountRepository, categoryRepository, noteRepository, currentUser, clock,
+    )
 
     fun today(): LocalDate = LocalDate.now(clock)
 }

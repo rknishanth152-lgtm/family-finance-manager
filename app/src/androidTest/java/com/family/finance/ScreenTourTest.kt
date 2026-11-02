@@ -134,6 +134,8 @@ class ScreenTourTest {
         go(Routes.CATEGORIES); check("categories")
         go(Routes.NOTES); check("notebook")
         go(Routes.noteEdit(NoteId(NOTE_ID))); check("note-edit")
+        go(Routes.BACKUP); check("backup")
+        go(Routes.IMPORT); check("import")
     }
 
     // --- navigation helpers ---

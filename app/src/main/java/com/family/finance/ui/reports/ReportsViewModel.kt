@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDate
 
-enum class ReportPeriodKind { TODAY, THIS_WEEK, THIS_MONTH, LAST_MONTH, THIS_YEAR, LAST_YEAR }
+enum class ReportPeriodKind { TODAY, THIS_WEEK, THIS_MONTH, LAST_MONTH, THIS_YEAR, LAST_YEAR, ALL_TIME }
 
 /** What the person has chosen on the Reports screen. A null [bucket] means "pick by range length". */
 data class ReportSelection(
@@ -101,12 +101,18 @@ class ReportsViewModel(
 ) : ViewModel() {
 
     private val selection = MutableStateFlow(ReportSelection(ReportingPeriod.thisMonth(today())))
+    /** Dates of the oldest and newest entries, for "All time". */
+    private var earliest: LocalDate? = null
+    private var latest: LocalDate? = null
+
     private val _export = MutableStateFlow<ExportStatus>(ExportStatus.Idle)
     val export: StateFlow<ExportStatus> = _export.asStateFlow()
 
     val uiState: StateFlow<ReportsUiState> = combine(
         selection, transactions.observeAll(), accounts.observeAll(), categories.observeAll(), members,
     ) { sel, txns, accts, cats, mems ->
+        earliest = txns.minOfOrNull { it.date }
+        latest = txns.maxOfOrNull { it.date }
         val report = Reports.build(sel.filter, txns, accts, cats)
         val bucket = sel.bucket ?: Reports.defaultBucket(sel.period.range)
         ReportsUiState(
@@ -151,6 +157,8 @@ class ReportsViewModel(
             ReportPeriodKind.LAST_MONTH -> ReportingPeriod.lastMonth(d)
             ReportPeriodKind.THIS_YEAR -> ReportingPeriod.thisYear(d)
             ReportPeriodKind.LAST_YEAR -> ReportingPeriod.lastYear(d)
+            // From the oldest entry to today (e.g. to check imported totals against the old app).
+            ReportPeriodKind.ALL_TIME -> ReportingPeriod.Custom(DateRange(minOf(earliest ?: d, d), maxOf(latest ?: d, d)))
         }
         selection.update { it.copy(period = period, bucket = null) }
     }

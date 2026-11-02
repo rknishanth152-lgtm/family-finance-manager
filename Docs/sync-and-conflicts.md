@@ -69,3 +69,9 @@ firebase emulators:exec --project demo-family-finance --only auth,firestore "..\
 
 Without the emulator running, `FirebaseSyncTest` is skipped, so `connectedDebugAndroidTest`
 still works on its own for the screen tests.
+
+Known test-setup limit: when all six sync tests run in one process over USB, a late test
+occasionally stalls on a network call (leftover connections from earlier tests share the
+`adb reverse` tunnel). Each test passes reliably in its own process, so for a clean result
+run them one per instrumentation run (a small local script loops over the test names). The
+standard fix is AndroidX Test Orchestrator, which runs every test in a fresh process.

@@ -12,7 +12,9 @@ import com.google.firebase.firestore.WriteBatch
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Instant
@@ -36,30 +38,44 @@ private fun Any?.fromFirestoreValue(): Any? = when (this) {
 
 internal fun DocumentSnapshot.fields(): Map<String, Any?> = (data ?: emptyMap()).fromFirestore()
 
-/** Live query results; emits nothing but an empty list if access is denied (e.g. removed member). */
+/**
+ * Live query results. If the cloud refuses or drops the listener (e.g. a read made a moment
+ * before membership reached the cloud, or a removed member), null is emitted and the
+ * listener is set up again after a growing pause, instead of staying silent for good.
+ */
 internal fun Query.snapshots(onError: (Exception) -> Unit = {}): Flow<QuerySnapshot?> = callbackFlow {
     val registration = addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, error ->
         if (error != null) {
             onError(error)
             trySend(null)
+            close(error)
         } else {
             trySend(snapshot)
         }
     }
     awaitClose { registration.remove() }
-}
+}.retryWithBackoff()
 
 internal fun DocumentReference.snapshots(onError: (Exception) -> Unit = {}): Flow<DocumentSnapshot?> = callbackFlow {
     val registration = addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, error ->
         if (error != null) {
             onError(error)
             trySend(null)
+            close(error)
         } else {
             trySend(snapshot)
         }
     }
     awaitClose { registration.remove() }
+}.retryWithBackoff()
+
+/** Re-subscribes after 1, 2, 4 ... up to 30 seconds; never gives up while someone is listening. */
+private fun <T> Flow<T>.retryWithBackoff(): Flow<T> = retryWhen { _, attempt ->
+    delay(minOf(MAX_RETRY_MS, 1_000L shl attempt.coerceAtMost(5L).toInt()))
+    true
 }
+
+private const val MAX_RETRY_MS = 30_000L
 
 /** Collects write failures so the sync indicator can say "sync problem" (PRD 9.6, 11.2). */
 class WriteErrors {

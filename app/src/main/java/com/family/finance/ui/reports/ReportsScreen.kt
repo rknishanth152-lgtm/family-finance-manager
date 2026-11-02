@@ -494,6 +494,7 @@ private fun ReportPeriodKind.labelRes(): Int = when (this) {
     ReportPeriodKind.LAST_MONTH -> R.string.period_last_month
     ReportPeriodKind.THIS_YEAR -> R.string.period_this_year
     ReportPeriodKind.LAST_YEAR -> R.string.period_last_year
+    ReportPeriodKind.ALL_TIME -> R.string.period_all_time
 }
 
 @StringRes

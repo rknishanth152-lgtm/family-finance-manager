@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.family.finance.R
+import com.family.finance.data.NotAllowedToCreateFamily
 import com.family.finance.data.SessionManager
 import com.family.finance.data.SessionState
 import com.family.finance.ui.common.LocalAppContainer
@@ -150,7 +151,9 @@ private fun FamilySetupScreen(session: SessionManager, state: SessionState.Needs
         busy = true
         error = null
         scope.launch {
-            error = runCatching { action() }.exceptionOrNull()?.let { R.string.family_error }
+            error = runCatching { action() }.exceptionOrNull()?.let {
+                if (it is NotAllowedToCreateFamily) R.string.family_error_not_allowed else R.string.family_error
+            }
             busy = false
         }
     }

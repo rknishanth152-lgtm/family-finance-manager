@@ -3,6 +3,8 @@ rules_version = '2';
 // Family Finance access rules (PRD 10.2, 10.3).
 //
 // Layout:
+//   founders/{email}                     -> {}   Google accounts allowed to create a family;
+//                                           added by the owner in the Firebase console only
 //   users/{uid}                          -> { workspaceId }   which family this person belongs to
 //   invites/{email}                      -> { workspaceId, workspaceName, invitedByName, role, invitedBy, createdAt }
 //   workspaces/{wid}                     -> { name, createdBy, createdAt, schemaVersion }
@@ -22,6 +24,7 @@ service cloud.firestore {
     function memberDoc(wid) { return /databases/$(db)/documents/workspaces/$(wid)/members/$(me()); }
     function workspaceDoc(wid) { return /databases/$(db)/documents/workspaces/$(wid); }
     function inviteDoc(email) { return /databases/$(db)/documents/invites/$(email); }
+    function founderDoc(email) { return /databases/$(db)/documents/founders/$(email); }
 
     function isMember(wid) {
       return signedIn() && exists(memberDoc(wid)) && get(memberDoc(wid)).data.status == 'active';
@@ -74,6 +77,12 @@ service cloud.firestore {
       return stamped() && d.title is string && d.title.size() > 0 && isDate(d.date);
     }
 
+    // The allowlist of who may create a family. Never readable or writable from the app:
+    // only the project owner edits it, in the Firebase console.
+    match /founders/{email} {
+      allow read, write: if false;
+    }
+
     match /users/{userId} {
       allow read: if signedIn() && me() == userId;
       // Only point at a family you are (after this write) actually a member of.
@@ -97,8 +106,12 @@ service cloud.firestore {
 
     match /workspaces/{wid} {
       allow read: if isMember(wid);
-      // Created together with the founder's admin membership, in one batch.
+      // Created together with the founder's admin membership, in one batch, and only by a
+      // verified Google account on the founders allowlist: a stranger who signs in to the
+      // project cannot start families of their own.
       allow create: if signedIn()
+        && request.auth.token.email_verified == true
+        && exists(founderDoc(myEmail()))
         && request.resource.data.createdBy == me()
         && getAfter(memberDoc(wid)).data.role == 'admin';
       allow update: if isAdmin(wid) && request.resource.data.createdBy == resource.data.createdBy;

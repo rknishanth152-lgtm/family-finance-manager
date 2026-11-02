@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.CoroutineScope
@@ -117,6 +118,7 @@ class FirebaseSyncTest {
     /** Father creates the family and invites mother; mother joins. Returns both containers. */
     private suspend fun family(): Triple<Phone, Phone, Pair<AppContainer, AppContainer>> {
         val father = phone("father").apply { signIn() }
+        step("father is allowed to start a family") { allowFounder(father.email) }
         val mother = phone("mother").apply { signIn() }
         step("father creates the family") { father.session.createFamily("Test family") }
         val fatherApp = father.ready()
@@ -129,6 +131,27 @@ class FirebaseSyncTest {
         val motherApp = mother.ready()
         step("father adds an account") { fatherApp.accountService.save(AccountId("cash"), AccountDraft("ரொக்கம்", AccountType.CASH, "1000", LocalDate.parse("2026-01-01"))) }
         return Triple(father, mother, fatherApp to motherApp)
+    }
+
+    /**
+     * Adds an email to the founders allowlist the way the project owner does in the console.
+     * The emulator accepts "Bearer owner" as an admin that bypasses the rules.
+     */
+    private suspend fun allowFounder(email: String) = withContext(Dispatchers.IO) {
+        // Firestore REST "createDocument": POST to the collection with the document ID as a parameter.
+        val id = java.net.URLEncoder.encode(email, "UTF-8")
+        val url = java.net.URL("http://$HOST:$FIRESTORE_PORT/v1/projects/$PROJECT/databases/(default)/documents/founders?documentId=$id")
+        val conn = url.openConnection() as java.net.HttpURLConnection
+        try {
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Authorization", "Bearer owner")
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.doOutput = true
+            conn.outputStream.use { it.write("{\"fields\":{}}".toByteArray()) }
+            check(conn.responseCode in 200..299) { "founders write failed: ${conn.responseCode}" }
+        } finally {
+            conn.disconnect()
+        }
     }
 
     private fun expense(amount: String, title: String = "உரம்") =

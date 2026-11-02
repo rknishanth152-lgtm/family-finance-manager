@@ -51,6 +51,10 @@ import com.family.finance.ui.accounts.AccountsRoute
 import com.family.finance.ui.calendar.CalendarRoute
 import com.family.finance.ui.categories.CategoriesRoute
 import com.family.finance.ui.family.FamilyRoute
+import com.family.finance.ui.backup.BackupRoute
+import com.family.finance.ui.backup.LegacyImportRoute
+import com.family.finance.ui.common.LocalAppContainer
+import com.family.finance.domain.model.Role
 import com.family.finance.ui.form.TransactionFormRoute
 import com.family.finance.ui.home.HomeRoute
 import com.family.finance.ui.more.MoreScreen
@@ -91,6 +95,8 @@ object Routes {
     const val ACCOUNT_EDIT = "accounts/edit?id={id}"
     const val CATEGORIES = "categories"
     const val FAMILY = "family"
+    const val BACKUP = "backup"
+    const val IMPORT = "import"
     const val NOTES = "notes"
     const val NOTE_EDIT = "notes/edit?id={id}"
     const val REPORT_ENTRIES = "reports/entries?from={from}&to={to}&account={account}&category={category}&type={type}"
@@ -223,6 +229,9 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                     onCategories = { navController.navigate(Routes.CATEGORIES) },
                     onNotebook = { navController.navigate(Routes.NOTES) },
                     onFamily = { navController.navigate(Routes.FAMILY) },
+                    onBackup = { navController.navigate(Routes.BACKUP) },
+                    onImport = { navController.navigate(Routes.IMPORT) },
+                    isAdmin = LocalAppContainer.current.familyRepository.me.role == Role.ADMIN,
                 )
             }
             composable(
@@ -265,6 +274,8 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             }
             composable(Routes.CATEGORIES) { CategoriesRoute(onBack = { navController.popBackStack() }) }
             composable(Routes.FAMILY) { FamilyRoute(onBack = { navController.popBackStack() }) }
+            composable(Routes.BACKUP) { BackupRoute(onBack = { navController.popBackStack() }) }
+            composable(Routes.IMPORT) { LegacyImportRoute(onBack = { navController.popBackStack() }) }
             composable(Routes.NOTES) {
                 NotesRoute(
                     onBack = { navController.popBackStack() },

@@ -28,6 +28,11 @@ const mother = () => env.authenticatedContext('mother', { email: 'Mother@Example
 const stranger = () => env.authenticatedContext('stranger', { email: 'stranger@example.com', email_verified: true }).firestore();
 const anonymous = () => env.unauthenticatedContext().firestore();
 
+/** Puts an email on the founders allowlist, as the owner would in the Firebase console. */
+async function allowFounder(email) {
+  await env.withSecurityRulesDisabled(async (ctx) => setDoc(doc(ctx.firestore(), `founders/${email}`), {}));
+}
+
 /** Father founds the workspace: workspace + admin membership + pointer, in one batch. */
 async function foundWorkspace(db = father()) {
   const b = writeBatch(db);
@@ -62,12 +67,25 @@ function txn(overrides = {}) {
 }
 
 describe('founding a family', () => {
-  test('a signed-in person can create a new family and become its admin', async () => {
+  test('an allowed person can create a new family and become its admin', async () => {
+    await allowFounder('father@example.com');
     await assertSucceeds(foundWorkspace());
+  });
+
+  test('a signed-in person who is not on the founders list cannot create a family', async () => {
+    await assertFails(foundWorkspace());
+  });
+
+  test('the founders list cannot be read or changed from the app', async () => {
+    await allowFounder('father@example.com');
+    await assertFails(getDoc(doc(father(), 'founders/father@example.com')));
+    await assertFails(setDoc(doc(stranger(), 'founders/stranger@example.com'), {}));
   });
 
   test('cannot take over an existing family by "founding" it again', async () => {
     await seedFamily();
+    // Even someone allowed to found families cannot re-found an existing one.
+    await allowFounder('stranger@example.com');
     const db = stranger();
     const b = writeBatch(db);
     b.set(doc(db, `workspaces/${WID}`), { name: 'Mine', createdBy: 'stranger', schemaVersion: 1 });

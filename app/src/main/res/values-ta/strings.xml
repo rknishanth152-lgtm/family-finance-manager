@@ -226,6 +226,7 @@
     <string name="family_name_default">குடும்பம்</string>
     <string name="action_create_family">குடும்பத்தை உருவாக்கு</string>
     <string name="family_error">ஏதோ தவறு நடந்தது. இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயலவும்.</string>
+    <string name="family_error_not_allowed">இந்த Google கணக்கு புதிய குடும்பத்தைத் தொடங்க அனுமதிக்கப்படவில்லை. குடும்ப நிர்வாகியிடம் அழைப்பு கேட்கவும், அல்லது இந்தச் செயலியை அமைத்த கணக்கில் உள்நுழையவும்.</string>
     <string name="action_sign_out">வெளியேறு</string>
     <string name="sign_out_title">வெளியேறவா?</string>
     <string name="sign_out_message">உங்கள் குடும்பப் பதிவுகள் கிளவுடில் பாதுகாப்பாக இருக்கும். அதே Google கணக்கில் மீண்டும் உள்நுழைந்தால் பார்க்கலாம்.</string>
@@ -324,4 +325,81 @@
     <string name="export_sheet_transactions">பரிவர்த்தனைகள்</string>
     <string name="export_sheet_categories">வகைவாரியான பகுப்பு</string>
     <string name="export_page">பக்கம் %1$d / %2$d</string>
+    <!-- Backup and restore (PRD 12.5-12.7) -->
+    <string name="period_all_time">எல்லாக் காலமும்</string>
+    <string name="more_import">பழைய செயலியிலிருந்து இறக்கு</string>
+    <string name="backup_section_create">காப்புப்பிரதி எடு</string>
+    <string name="backup_explain">எல்லாக் கணக்குகள், வகைகள், பதிவுகள், குறிப்புகளை ஒரே கோப்பில் சேமிக்கும். அதை உங்கள் Google Drive போன்ற பாதுகாப்பான இடத்தில் வைக்கவும்.</string>
+    <string name="backup_wait_sync">எல்லாப் பதிவுகளும் சேர, முகப்பில் கிளவுட் குறி ஒத்திசைக்கப்பட்டது எனக் காட்டும் வரை காத்திருக்கவும்.</string>
+    <string name="action_create_backup">காப்புப்பிரதி உருவாக்கு</string>
+    <string name="backup_section_restore">காப்புப்பிரதியிலிருந்து மீட்டமை</string>
+    <string name="restore_explain">காப்புப்பிரதிக் கோப்பில் உள்ள, இங்கே இல்லாத பதிவுகளை மட்டும் சேர்க்கும். ஏற்கெனவே உள்ள எதுவும் மாற்றப்படாது, நீக்கப்படாது.</string>
+    <string name="action_choose_backup">காப்புப்பிரதிக் கோப்பைத் தேர்ந்தெடு</string>
+    <string name="backup_working">செயல்படுகிறது…</string>
+    <plurals name="backup_saved">
+        <item quantity="one">காப்புப்பிரதி சேமிக்கப்பட்டுச் சரிபார்க்கப்பட்டது: %1$d பதிவு, வரவு %2$s, செலவு %3$s.</item>
+        <item quantity="other">காப்புப்பிரதி சேமிக்கப்பட்டுச் சரிபார்க்கப்பட்டது: %1$d பதிவுகள், வரவு %2$s, செலவு %3$s.</item>
+    </plurals>
+    <string name="backup_failed_title">ஏதோ தவறு நடந்தது</string>
+    <string name="backup_failed">காப்புப்பிரதியைச் சேமிக்கவோ சரிபார்க்கவோ முடியவில்லை. மீண்டும் முயலவும்.</string>
+    <string name="restore_invalid_title">இந்தக் கோப்பை மீட்டமைக்க முடியாது</string>
+    <string name="restore_problem_unreadable">கோப்பு சேதமடைந்துள்ளது அல்லது இது காப்புப்பிரதிக் கோப்பு அல்ல.</string>
+    <string name="restore_problem_not_backup">இது இந்தச் செயலி உருவாக்கிய காப்புப்பிரதி அல்ல.</string>
+    <string name="restore_problem_newer">இந்தக் காப்புப்பிரதி செயலியின் புதிய பதிப்பில் உருவாக்கப்பட்டது. முதலில் செயலியைப் புதுப்பிக்கவும்.</string>
+    <string name="restore_problem_bad_record">கோப்பில் சில பதிவுகள் சேதமடைந்துள்ளன. எதுவும் மீட்டமைக்கப்படவில்லை.</string>
+    <string name="restore_problem_totals">கோப்பில் உள்ள மொத்தங்கள் அதன் பதிவுகளுடன் பொருந்தவில்லை; கோப்பு பாதியில் துண்டிக்கப்பட்டிருக்கலாம் அல்லது மாற்றப்பட்டிருக்கலாம். எதுவும் மீட்டமைக்கப்படவில்லை.</string>
+    <string name="restore_preview_title">மீட்டமைக்கும் முன் சரிபார்க்கவும்</string>
+    <string name="restore_file_from">%1$s காப்புப்பிரதி, உருவாக்கிய தேதி %2$s</string>
+    <string name="restore_in_file">கோப்பில் உள்ள பதிவுகள்</string>
+    <string name="restore_already_here">ஏற்கெனவே செயலியில் உள்ளவை</string>
+    <string name="restore_differ">இங்கே வேறுபட்டவை (அப்படியே வைக்கப்படும்)</string>
+    <string name="restore_will_add">சேர்க்கப்படுபவை</string>
+    <string name="restore_nothing_to_add">இந்தக் காப்புப்பிரதியில் உள்ள அனைத்தும் ஏற்கெனவே செயலியில் உள்ளன.</string>
+    <plurals name="restore_broken">
+        <item quantity="one">%d பதிவு இல்லாத கணக்கையோ வகையையோ குறிக்கிறது. எதுவும் மீட்டமைக்கப்படவில்லை.</item>
+        <item quantity="other">%d பதிவுகள் இல்லாத கணக்கையோ வகையையோ குறிக்கின்றன. எதுவும் மீட்டமைக்கப்படவில்லை.</item>
+    </plurals>
+    <plurals name="action_add_missing">
+        <item quantity="one">விடுபட்ட %d பதிவைச் சேர்</item>
+        <item quantity="other">விடுபட்ட %d பதிவுகளைச் சேர்</item>
+    </plurals>
+    <plurals name="restore_done">
+        <item quantity="one">%d பதிவு சேர்க்கப்பட்டது.</item>
+        <item quantity="other">%d பதிவுகள் சேர்க்கப்பட்டன.</item>
+    </plurals>
+
+    <!-- Import from the old app (PRD 13) -->
+    <string name="import_section">பழைய செயலியின் காப்புப்பிரதிக் கோப்பு</string>
+    <string name="import_explain">பழைய Income Expense செயலியின் காப்புப்பிரதிக் கோப்பைத் தேர்ந்தெடுக்கவும் (.db என முடியும்). முதலில் அதில் உள்ள அனைத்தின் சரிபார்ப்பு காட்டப்படும்; நீங்கள் உறுதிசெய்யும் வரை எதுவும் சேர்க்கப்படாது. கோப்பு மாற்றப்படாது.</string>
+    <string name="action_choose_old_file">பழைய செயலியின் கோப்பைத் தேர்ந்தெடு</string>
+    <string name="import_report_title">கோப்பில் உள்ளவை</string>
+    <string name="import_rows_in_file">கோப்பில் உள்ள வரிகள்</string>
+    <string name="import_deleted_skipped">பழைய செயலியில் நீக்கப்பட்டவை (தவிர்க்கப்படும்)</string>
+    <string name="import_entries_ok">கொண்டுவரப்படும் பதிவுகள்</string>
+    <string name="import_rejected">கொண்டுவர முடியாத பதிவுகள்</string>
+    <string name="import_reject_no_amount">தொகை இல்லை</string>
+    <string name="import_reject_both_amounts">வரவும் செலவும் இரண்டும் உள்ளன</string>
+    <string name="import_reject_not_exact">2 தசம இடங்களுக்கு மேல் உள்ள தொகை</string>
+    <string name="import_reject_unknown_category">தெரியாத வகை</string>
+    <string name="import_reject_unknown_account">தெரியாத செலுத்தும் முறை</string>
+    <string name="import_reject_kind_mismatch">பொருந்தாத வகை</string>
+    <string name="import_categories_used">வகைகள் (அவருடைய பெயர்களிலேயே)</string>
+    <string name="import_categories_unused">பயன்படுத்தப்படாத வகைகள் (கொண்டுவரப்படாது)</string>
+    <string name="import_untitled">விவரம் இல்லாத பதிவுகள் (வகையின் பெயர் தலைப்பாக)</string>
+    <string name="import_bills">பில் படங்கள் இருந்த பதிவுகள் (படங்கள் கோப்பில் இல்லை)</string>
+    <string name="import_duplicates">இரட்டிப்பாக இருக்கக்கூடியவை (இருப்பினும் கொண்டுவரப்படும்)</string>
+    <string name="import_notes">குறிப்பேட்டுப் பதிவுகள்</string>
+    <string name="import_rejected_title">சில பதிவுகளைக் கொண்டுவர முடியாது</string>
+    <string name="import_rejected_message">அவை காரணத்துடன் மேலே பட்டியலிடப்பட்டுள்ளன. காட்டப்படும் மொத்தங்கள் கொண்டுவரப்படும் பதிவுகளுக்கானவை.</string>
+    <plurals name="action_import_records">
+        <item quantity="one">%d பதிவை இறக்கு</item>
+        <item quantity="other">%d பதிவுகளை இறக்கு</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="one">%d பதிவு இறக்கப்பட்டது. அறிக்கைகள், எல்லாக் காலமும் என்பதில் மொத்தங்களைச் சரிபார்த்து, பிறகு காப்புப்பிரதி எடுக்கவும்.</item>
+        <item quantity="other">%d பதிவுகள் இறக்கப்பட்டன. அறிக்கைகள், எல்லாக் காலமும் என்பதில் மொத்தங்களைச் சரிபார்த்து, பிறகு காப்புப்பிரதி எடுக்கவும்.</item>
+    </plurals>
+    <string name="import_wrong_file_title">பழைய செயலியின் கோப்பு அல்ல</string>
+    <string name="import_wrong_file">இந்தக் கோப்பு Income Expense செயலியின் காப்புப்பிரதி அல்ல. எதுவும் இறக்கப்படவில்லை.</string>
+    <string name="import_failed">கோப்பைப் படிக்க முடியவில்லை. எதுவும் இறக்கப்படவில்லை.</string>
 </resources>

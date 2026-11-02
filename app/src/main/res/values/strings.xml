@@ -229,6 +229,7 @@
     <string name="family_name_default">Family</string>
     <string name="action_create_family">Create family</string>
     <string name="family_error">Something went wrong. Check the internet connection and try again.</string>
+    <string name="family_error_not_allowed">This Google account is not allowed to start a family. Ask the family admin to invite you, or sign in with the account that set up this app.</string>
     <string name="action_sign_out">Sign out</string>
     <string name="sign_out_title">Sign out?</string>
     <string name="sign_out_message">Your family records stay safe in the cloud. Sign in again with the same Google account to see them.</string>
@@ -327,4 +328,81 @@
     <string name="export_sheet_transactions">Transactions</string>
     <string name="export_sheet_categories">Category breakdown</string>
     <string name="export_page">Page %1$d of %2$d</string>
+    <!-- Backup and restore (PRD 12.5-12.7) -->
+    <string name="period_all_time">All time</string>
+    <string name="more_import">Import from old app</string>
+    <string name="backup_section_create">Make a backup</string>
+    <string name="backup_explain">Saves every account, category, entry and note into one file. Keep it somewhere safe, such as your Google Drive.</string>
+    <string name="backup_wait_sync">Wait until the cloud icon on Home shows Synced, so the backup has every entry.</string>
+    <string name="action_create_backup">Create backup</string>
+    <string name="backup_section_restore">Restore from a backup</string>
+    <string name="restore_explain">Adds the records from a backup file that are missing here. Nothing already in the app is changed or deleted.</string>
+    <string name="action_choose_backup">Choose backup file</string>
+    <string name="backup_working">Working…</string>
+    <plurals name="backup_saved">
+        <item quantity="one">Backup saved and checked: %1$d entry, income %2$s, expenses %3$s.</item>
+        <item quantity="other">Backup saved and checked: %1$d entries, income %2$s, expenses %3$s.</item>
+    </plurals>
+    <string name="backup_failed_title">Something went wrong</string>
+    <string name="backup_failed">The backup could not be saved or checked. Please try again.</string>
+    <string name="restore_invalid_title">This file cannot be restored</string>
+    <string name="restore_problem_unreadable">The file is damaged or is not a backup file.</string>
+    <string name="restore_problem_not_backup">This is not a backup made by this app.</string>
+    <string name="restore_problem_newer">This backup was made by a newer version of the app. Update the app first.</string>
+    <string name="restore_problem_bad_record">Some records in the file are damaged. Nothing was restored.</string>
+    <string name="restore_problem_totals">The totals in the file do not match its entries, so it may have been cut short or edited. Nothing was restored.</string>
+    <string name="restore_preview_title">Check before restoring</string>
+    <string name="restore_file_from">Backup of %1$s, made on %2$s</string>
+    <string name="restore_in_file">Entries in the file</string>
+    <string name="restore_already_here">Already in the app</string>
+    <string name="restore_differ">Different here (kept as they are)</string>
+    <string name="restore_will_add">Will be added</string>
+    <string name="restore_nothing_to_add">Everything in this backup is already in the app.</string>
+    <plurals name="restore_broken">
+        <item quantity="one">%d entry points to an account or category that is missing. Nothing was restored.</item>
+        <item quantity="other">%d entries point to an account or category that is missing. Nothing was restored.</item>
+    </plurals>
+    <plurals name="action_add_missing">
+        <item quantity="one">Add %d missing record</item>
+        <item quantity="other">Add %d missing records</item>
+    </plurals>
+    <plurals name="restore_done">
+        <item quantity="one">%d record was added.</item>
+        <item quantity="other">%d records were added.</item>
+    </plurals>
+
+    <!-- Import from the old app (PRD 13) -->
+    <string name="import_section">Old app\'s backup file</string>
+    <string name="import_explain">Choose the backup file of the old Income Expense app (it ends in .db). First you will see a check of everything in it; nothing is added until you confirm. The file itself is not changed.</string>
+    <string name="action_choose_old_file">Choose old app\'s file</string>
+    <string name="import_report_title">What the file contains</string>
+    <string name="import_rows_in_file">Rows in the file</string>
+    <string name="import_deleted_skipped">Deleted in the old app (skipped)</string>
+    <string name="import_entries_ok">Entries to bring across</string>
+    <string name="import_rejected">Entries that cannot be brought across</string>
+    <string name="import_reject_no_amount">No amount</string>
+    <string name="import_reject_both_amounts">Both income and expense</string>
+    <string name="import_reject_not_exact">Amount with more than 2 decimals</string>
+    <string name="import_reject_unknown_category">Unknown category</string>
+    <string name="import_reject_unknown_account">Unknown payment method</string>
+    <string name="import_reject_kind_mismatch">Category of the wrong kind</string>
+    <string name="import_categories_used">Categories (his own names)</string>
+    <string name="import_categories_unused">Unused categories (not brought across)</string>
+    <string name="import_untitled">Entries without a description (titled with the category)</string>
+    <string name="import_bills">Entries that had bill photos (photos are not in the file)</string>
+    <string name="import_duplicates">Possible duplicates (still brought across)</string>
+    <string name="import_notes">Notebook entries</string>
+    <string name="import_rejected_title">Some entries cannot be brought across</string>
+    <string name="import_rejected_message">They are listed above with the reason. The totals shown are for the entries that will be brought across.</string>
+    <plurals name="action_import_records">
+        <item quantity="one">Import %d record</item>
+        <item quantity="other">Import %d records</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="one">%d record was imported. Check the totals on Reports, All time, then make a backup.</item>
+        <item quantity="other">%d records were imported. Check the totals on Reports, All time, then make a backup.</item>
+    </plurals>
+    <string name="import_wrong_file_title">Not the old app\'s file</string>
+    <string name="import_wrong_file">This file is not a backup of the Income Expense app. Nothing was imported.</string>
+    <string name="import_failed">The file could not be read. Nothing was imported.</string>
 </resources>

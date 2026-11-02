@@ -28,3 +28,16 @@ firebase/*.log
 
 # Local helper for running emulator-backed device tests
 run-sync-tests.cmd
+
+# Release signing key and its passwords (PRD 16.2: backed up safely, never committed)
+keystore.properties
+*.jks
+*.keystore
+
+# Family backups and exports, in case one is saved inside the project
+family-finance-backup*.json
+family-finance_*.pdf
+family-finance_*.csv
+family-finance_*.xlsx
+run-sync-tests-isolated.cmd
+create-release-key.ps1
