@@ -100,7 +100,7 @@ fun BackupRoute(onBack: () -> Unit) {
                 vm::dismiss,
             )
             is BackupStatus.Invalid -> WarningCard(stringResource(R.string.restore_invalid_title), stringResource(s.problem.messageRes()))
-            is BackupStatus.Preview -> RestorePreview(s.plan, onConfirm = vm::confirmRestore, onCancel = vm::dismiss)
+            is BackupStatus.Preview -> RestorePreview(s.plan, synced = canBackUp, onConfirm = vm::confirmRestore, onCancel = vm::dismiss)
             is BackupStatus.Restored -> Message(pluralStringResource(R.plurals.restore_done, s.result.total, s.result.total), vm::dismiss)
             BackupStatus.Failed -> WarningCard(stringResource(R.string.backup_failed_title), stringResource(R.string.backup_failed))
         }
@@ -108,7 +108,7 @@ fun BackupRoute(onBack: () -> Unit) {
 }
 
 @Composable
-private fun RestorePreview(plan: RestorePlan, onConfirm: () -> Unit, onCancel: () -> Unit) {
+private fun RestorePreview(plan: RestorePlan, synced: Boolean, onConfirm: () -> Unit, onCancel: () -> Unit) {
     val b = plan.backup
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
@@ -119,6 +119,8 @@ private fun RestorePreview(plan: RestorePlan, onConfirm: () -> Unit, onCancel: (
             AmountLine(R.string.summary_expense, b.totals.expense)
             CountLine(R.string.restore_already_here, plan.alreadyHere)
             if (plan.differ > 0) CountLine(R.string.restore_differ, plan.differ)
+            if (plan.deletedHere > 0) CountLine(R.string.restore_deleted_here, plan.deletedHere)
+            if (!synced) Text(stringResource(R.string.backup_wait_sync), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
             CountLine(R.string.restore_will_add, plan.addCount)
             if (!plan.canRestore) {
                 WarningCard(stringResource(R.string.restore_invalid_title), pluralStringResource(R.plurals.restore_broken, plan.brokenLinks.size, plan.brokenLinks.size))
@@ -126,7 +128,7 @@ private fun RestorePreview(plan: RestorePlan, onConfirm: () -> Unit, onCancel: (
             if (plan.addCount == 0) Text(stringResource(R.string.restore_nothing_to_add))
             Buttons(
                 confirm = pluralStringResource(R.plurals.action_add_missing, plan.addCount, plan.addCount),
-                confirmEnabled = plan.canRestore && plan.addCount > 0,
+                confirmEnabled = synced && plan.canRestore && plan.addCount > 0,
                 onConfirm = onConfirm,
                 onCancel = onCancel,
             )
@@ -146,9 +148,11 @@ fun LegacyImportRoute(onBack: () -> Unit) {
             clock = c.clock,
             readSource = reader::read,
             isFormatError = { it is LegacyFormatException },
+            sync = c.syncState,
         )
     }
     val status by vm.status.collectAsStateWithLifecycle()
+    val canImport by vm.canImport.collectAsStateWithLifecycle()
     val openLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { vm.check(it) }
 
     Page(R.string.more_import, onBack) {
@@ -165,9 +169,10 @@ fun LegacyImportRoute(onBack: () -> Unit) {
                 if (s.report.rejectedCount > 0) {
                     WarningCard(stringResource(R.string.import_rejected_title), stringResource(R.string.import_rejected_message))
                 }
+                if (!canImport) Text(stringResource(R.string.backup_wait_sync), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 Buttons(
                     confirm = pluralStringResource(R.plurals.action_import_records, s.plan.addCount, s.plan.addCount),
-                    confirmEnabled = s.plan.canRestore && s.plan.addCount > 0,
+                    confirmEnabled = canImport && s.plan.canRestore && s.plan.addCount > 0,
                     onConfirm = vm::import,
                     onCancel = vm::dismiss,
                 )
@@ -314,4 +319,5 @@ private fun RejectReason.labelRes(): Int = when (this) {
     RejectReason.UNKNOWN_CATEGORY -> R.string.import_reject_unknown_category
     RejectReason.UNKNOWN_PAYMENT_METHOD -> R.string.import_reject_unknown_account
     RejectReason.CATEGORY_KIND_MISMATCH -> R.string.import_reject_kind_mismatch
+    RejectReason.AMOUNT_TOO_LARGE -> R.string.import_reject_too_large
 }

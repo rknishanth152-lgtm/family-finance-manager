@@ -64,6 +64,7 @@ private fun MutableList<ValidationError>.checkAmount(text: String) {
     when {
         amount == null -> add(ValidationError(Field.AMOUNT, Reason.INVALID_FORMAT))
         !amount.isPositive -> add(ValidationError(Field.AMOUNT, Reason.NOT_POSITIVE))
+        !amount.isWithinLimit -> add(ValidationError(Field.AMOUNT, Reason.TOO_LARGE))
     }
 }
 

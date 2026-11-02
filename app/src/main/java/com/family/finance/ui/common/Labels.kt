@@ -101,6 +101,7 @@ fun ValidationError.messageRes(): Int = when (reason) {
     Reason.ARCHIVED -> R.string.error_category_archived
     Reason.WRONG_KIND -> R.string.error_category_wrong_kind
     Reason.SAME_AS_SOURCE -> R.string.error_same_account
+    Reason.TOO_LARGE -> R.string.error_amount_too_large
 }
 
 @StringRes

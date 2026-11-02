@@ -13,6 +13,7 @@ import com.family.finance.domain.model.sumOfMoney
 import com.family.finance.domain.usecase.SortOrder
 import com.family.finance.domain.usecase.TransactionQuery
 import com.family.finance.domain.usecase.TypeFilter
+import java.math.BigInteger
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.ChronoUnit
@@ -212,8 +213,10 @@ object Reports {
      */
     fun shareBasisPoints(part: Money, whole: Money): Long {
         if (!whole.isPositive) return 0
-        val scaled = Math.multiplyExact(part.paise, 10_000L)
-        return (scaled + whole.paise / 2) / whole.paise
+        // Widened so very large family totals can never overflow while computing a percentage.
+        val scaled = BigInteger.valueOf(part.paise).multiply(BigInteger.valueOf(10_000L))
+        val whole2 = BigInteger.valueOf(whole.paise)
+        return scaled.add(whole2.shiftRight(1)).divide(whole2).toLong()
     }
 
     private fun startOf(date: LocalDate, bucket: Bucket): LocalDate = when (bucket) {

@@ -17,10 +17,20 @@ value class Money(val paise: Long) : Comparable<Money> {
     val isZero: Boolean get() = paise == 0L
     val isNegative: Boolean get() = paise < 0
 
+    /** Within the per-entry limit [MAX_AMOUNT_PAISE] in either direction. */
+    val isWithinLimit: Boolean get() = paise in -MAX_AMOUNT_PAISE..MAX_AMOUNT_PAISE
+
     override fun compareTo(other: Money): Int = paise.compareTo(other.paise)
 
     companion object {
         const val PAISE_PER_RUPEE = 100L
+
+        /**
+         * The largest single amount or opening balance (either sign): Rs 10,000 crore. Far above
+         * any family figure, and low enough that hundreds of thousands of capped entries still
+         * add up without overflowing a Long. Enforced in the rules, forms, decoding and backups.
+         */
+        const val MAX_AMOUNT_PAISE = 10_000_000_000_000L
 
         val ZERO = Money(0)
 

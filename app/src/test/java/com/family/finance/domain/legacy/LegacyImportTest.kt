@@ -94,6 +94,12 @@ class LegacyImportTest {
         assertThat(p.report.imported + p.report.rejectedCount + p.report.deletedSkipped).isEqualTo(p.report.totalRows)
     }
 
+    @Test fun `amounts above the app limit are rejected, not imported`() {
+        val p = plan(entry(1, expense = Money.MAX_AMOUNT_PAISE + 1), entry(2, income = Money.MAX_AMOUNT_PAISE, category = "விவசாய வருமானம்"))
+        assertThat(p.report.rejected).containsExactly(RejectReason.AMOUNT_TOO_LARGE, listOf(1L))
+        assertThat(p.report.imported).isEqualTo(1)
+    }
+
     @Test fun `an entry without a description is titled with its category`() {
         val p = plan(entry(1, expense = 100, notes = null), entry(2, expense = 100, notes = "  "))
         assertThat(p.records.transactions.map { it.title }).containsExactly("Fertilizer", "Fertilizer")

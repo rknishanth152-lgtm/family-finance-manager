@@ -33,7 +33,20 @@ class LegacyDbReader(context: Context) {
         val copy = File(dir, "old.db")
         try {
             val input = app.contentResolver.openInputStream(uri) ?: throw LegacyFormatException("cannot open file")
-            input.use { src -> copy.outputStream().use { src.copyTo(it) } }
+            input.use { src ->
+                copy.outputStream().use { out ->
+                    // Bounded copy: a wrong pick (a video, say) cannot fill the phone's storage.
+                    val buffer = ByteArray(64 * 1024)
+                    var total = 0L
+                    while (true) {
+                        val n = src.read(buffer)
+                        if (n < 0) break
+                        total += n
+                        if (total > MAX_BYTES) throw LegacyFormatException("file too large")
+                        out.write(buffer, 0, n)
+                    }
+                }
+            }
             val db = try {
                 SQLiteDatabase.openDatabase(copy.path, null, SQLiteDatabase.OPEN_READONLY)
             } catch (e: RuntimeException) {
@@ -114,5 +127,7 @@ class LegacyDbReader(context: Context) {
 
     private companion object {
         const val WORK_DIR = "legacy-import"
+        /** The family's real file is about 0.1 MB; decades of entries stay far below this. */
+        const val MAX_BYTES = 50L * 1024 * 1024
     }
 }

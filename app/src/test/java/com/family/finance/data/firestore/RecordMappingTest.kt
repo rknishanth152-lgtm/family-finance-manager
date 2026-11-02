@@ -52,6 +52,19 @@ class RecordMappingTest {
         assertThat(RecordMapping.decodeTransaction("t", fields).amount).isEqualTo(Money(500))
     }
 
+    @Test fun `amounts beyond the app limit are refused, so one bad record cannot break every total`() {
+        val fields = RecordMapping.encode(Fixtures.income(rupees(5), CASH_ID)).toMutableMap()
+        fields["amountPaise"] = Money.MAX_AMOUNT_PAISE
+        assertThat(RecordMapping.decodeTransaction("t", fields).amount).isEqualTo(Money(Money.MAX_AMOUNT_PAISE))
+        for (bad in listOf(Money.MAX_AMOUNT_PAISE + 1, Long.MAX_VALUE, 0L, -100L)) {
+            fields["amountPaise"] = bad
+            assertThat(runCatching { RecordMapping.decodeTransaction("t", fields) }.isFailure).isTrue()
+        }
+        val account = RecordMapping.encode(Fixtures.account(BANK_ID)).toMutableMap()
+        account["openingBalancePaise"] = Long.MIN_VALUE
+        assertThat(runCatching { RecordMapping.decodeAccount("a", account) }.isFailure).isTrue()
+    }
+
     @Test fun `accounts, categories and notes round trip`() {
         val account = Fixtures.account(BANK_ID, opening = Money(19_685_075))
         assertThat(RecordMapping.decodeAccount(account.id.value, RecordMapping.encode(account))).isEqualTo(account)

@@ -103,6 +103,7 @@
     <string name="error_choose_date">ஒரு தேதியைத் தேர்ந்தெடுக்கவும்.</string>
     <string name="error_amount_format">250 அல்லது 250.50 போல தொகையை உள்ளிடவும் (புள்ளிக்குப் பின் அதிகபட்சம் 2 இலக்கங்கள்).</string>
     <string name="error_amount_positive">தொகை பூஜ்ஜியத்தை விட அதிகமாக இருக்க வேண்டும்.</string>
+    <string name="error_amount_too_large">இந்தத் தொகை மிகப் பெரியது. ஒரு பதிவின் அதிகபட்சத் தொகை ₹10,000 கோடி.</string>
     <string name="error_not_found">இது இப்போது இல்லை. வேறொன்றைத் தேர்ந்தெடுக்கவும்.</string>
     <string name="error_account_archived">இந்தக் கணக்கு காப்பகப்படுத்தப்பட்டுள்ளது. வேறொன்றைத் தேர்ந்தெடுக்கவும் அல்லது கணக்குகளில் மீட்டெடுக்கவும்.</string>
     <string name="error_category_archived">இந்த வகை காப்பகப்படுத்தப்பட்டுள்ளது. வேறொன்றைத் தேர்ந்தெடுக்கவும் அல்லது வகைகளில் மீட்டெடுக்கவும்.</string>
@@ -353,6 +354,7 @@
     <string name="restore_in_file">கோப்பில் உள்ள பதிவுகள்</string>
     <string name="restore_already_here">ஏற்கெனவே செயலியில் உள்ளவை</string>
     <string name="restore_differ">இங்கே வேறுபட்டவை (அப்படியே வைக்கப்படும்)</string>
+    <string name="restore_deleted_here">காப்புப்பிரதிக்குப் பிறகு இங்கே நீக்கப்பட்டவை (நீக்கியபடியே இருக்கும்)</string>
     <string name="restore_will_add">சேர்க்கப்படுபவை</string>
     <string name="restore_nothing_to_add">இந்தக் காப்புப்பிரதியில் உள்ள அனைத்தும் ஏற்கெனவே செயலியில் உள்ளன.</string>
     <plurals name="restore_broken">
@@ -383,6 +385,7 @@
     <string name="import_reject_unknown_category">தெரியாத வகை</string>
     <string name="import_reject_unknown_account">தெரியாத செலுத்தும் முறை</string>
     <string name="import_reject_kind_mismatch">பொருந்தாத வகை</string>
+    <string name="import_reject_too_large">₹10,000 கோடிக்கு மேற்பட்ட தொகை</string>
     <string name="import_categories_used">வகைகள் (அவருடைய பெயர்களிலேயே)</string>
     <string name="import_categories_unused">பயன்படுத்தப்படாத வகைகள் (கொண்டுவரப்படாது)</string>
     <string name="import_untitled">விவரம் இல்லாத பதிவுகள் (வகையின் பெயர் தலைப்பாக)</string>

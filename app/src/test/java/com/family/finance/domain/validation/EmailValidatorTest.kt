@@ -12,7 +12,9 @@ class EmailValidatorTest {
     }
 
     @Test fun `rejects things that are not email addresses`() {
-        listOf("", "amma", "amma@", "@gmail.com", "amma@gmail", "am ma@gmail.com", "amma@gmail.c").forEach {
+        listOf("", "amma", "amma@", "@gmail.com", "amma@gmail", "am ma@gmail.com", "amma@gmail.c",
+            // A slash would make the invite a different cloud document path.
+            "amma/x@gmail.com", "amma@gmail.com/invites").forEach {
             assertThat(EmailValidator.isValid(it)).isFalse()
         }
     }

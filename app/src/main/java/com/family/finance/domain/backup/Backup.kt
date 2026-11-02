@@ -164,11 +164,11 @@ object BackupCodec {
     private fun readAccount(o: Any?): Account {
         val m = o.obj("account")
         return Account(
-            id = AccountId(m.str("id")),
+            id = AccountId(m.id("id")),
             name = m.str("name").also { require(it.isNotBlank()) { "account name is blank" } },
             type = AccountType.valueOf(m.str("type")),
-            openingBalance = Money(m.long("openingBalancePaise")),
-            openingBalanceDate = LocalDate.parse(m.str("openingBalanceDate")),
+            openingBalance = Money(m.long("openingBalancePaise")).also { require(it.isWithinLimit) { "opening balance out of range" } },
+            openingBalanceDate = m.date("openingBalanceDate"),
             isActive = m.bool("isActive"),
             createdAt = Instant.parse(m.str("createdAt")),
             updatedAt = Instant.parse(m.str("updatedAt")),
@@ -179,7 +179,7 @@ object BackupCodec {
     private fun readCategory(o: Any?): Category {
         val m = o.obj("category")
         return Category(
-            id = CategoryId(m.str("id")),
+            id = CategoryId(m.id("id")),
             name = m.str("name"),
             kind = CategoryKind.valueOf(m.str("kind")),
             isArchived = m.bool("isArchived"),
@@ -190,18 +190,18 @@ object BackupCodec {
 
     private fun readTransaction(o: Any?): Transaction {
         val m = o.obj("transaction")
-        val id = TransactionId(m.str("id"))
-        val amount = Money(m.long("amountPaise")).also { require(it.isPositive) { "amount must be positive in ${id.value}" } }
+        val id = TransactionId(m.id("id"))
+        val amount = Money(m.long("amountPaise")).also { require(it.isPositive && it.isWithinLimit) { "amount out of range in ${id.value}" } }
         val title = m.str("title")
-        val date = LocalDate.parse(m.str("date"))
+        val date = m.date("date")
         val notes = m.optStr("notes")
         val createdBy = UserId(m.str("createdBy"))
         val createdAt = Instant.parse(m.str("createdAt"))
         val updatedAt = Instant.parse(m.str("updatedAt"))
         return when (val type = m.str("type")) {
-            "income" -> Transaction.Income(id, amount, title, date, AccountId(m.str("accountId")), CategoryId(m.str("categoryId")), m.str("source"), notes, createdBy, createdAt, updatedAt)
-            "expense" -> Transaction.Expense(id, amount, title, date, AccountId(m.str("accountId")), CategoryId(m.str("categoryId")), m.optStr("merchant"), notes, createdBy, createdAt, updatedAt)
-            "transfer" -> Transaction.Transfer(id, amount, title, date, AccountId(m.str("fromAccountId")), AccountId(m.str("toAccountId")), notes, createdBy, createdAt, updatedAt)
+            "income" -> Transaction.Income(id, amount, title, date, AccountId(m.id("accountId")), CategoryId(m.id("categoryId")), m.str("source"), notes, createdBy, createdAt, updatedAt)
+            "expense" -> Transaction.Expense(id, amount, title, date, AccountId(m.id("accountId")), CategoryId(m.id("categoryId")), m.optStr("merchant"), notes, createdBy, createdAt, updatedAt)
+            "transfer" -> Transaction.Transfer(id, amount, title, date, AccountId(m.id("fromAccountId")), AccountId(m.id("toAccountId")), notes, createdBy, createdAt, updatedAt)
             else -> throw IllegalArgumentException("unknown transaction type $type")
         }
     }
@@ -209,10 +209,25 @@ object BackupCodec {
     private fun readNote(o: Any?): NoteEntry {
         val m = o.obj("note")
         return NoteEntry(
-            id = NoteId(m.str("id")), title = m.str("title"), description = m.str("description"),
-            date = LocalDate.parse(m.str("date")), createdBy = UserId(m.str("createdBy")),
+            id = NoteId(m.id("id")), title = m.str("title").also { require(it.isNotBlank()) { "note title is blank" } }, description = m.str("description"),
+            date = m.date("date"), createdBy = UserId(m.str("createdBy")),
             createdAt = Instant.parse(m.str("createdAt")), updatedAt = Instant.parse(m.str("updatedAt")),
         )
+    }
+
+    /**
+     * A record ID becomes one Firestore document name, so it must be a single safe path
+     * segment: not empty, no '/', not '.' or '..', and not a reserved '__name__' form.
+     */
+    private fun Map<*, *>.id(key: String): String = str(key).also {
+        require(it.isNotEmpty() && it.length <= 200 && '/' !in it && it != "." && it != ".." && !(it.startsWith("__") && it.endsWith("__"))) {
+            "unsafe id in \"$key\""
+        }
+    }
+
+    /** Dates as YYYY-MM-DD within years 1..9999, the form the cloud rules accept. */
+    private fun Map<*, *>.date(key: String): LocalDate = LocalDate.parse(str(key)).also {
+        require(it.year in 1..9999) { "date out of range in \"$key\"" }
     }
 
     private fun Any?.obj(what: String): Map<*, *> = this as? Map<*, *> ?: throw IllegalArgumentException("$what is not an object")

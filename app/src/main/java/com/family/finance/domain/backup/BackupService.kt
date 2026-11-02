@@ -30,6 +30,8 @@ data class RestorePlan(
     val toAdd: Backup,
     val alreadyHere: Int,
     val differ: Int,
+    /** Records deleted here since the backup was made; they stay deleted. */
+    val deletedHere: Int,
     /** Entries pointing at an account or category found neither in the backup nor here. */
     val brokenLinks: List<String>,
 ) {
@@ -72,6 +74,8 @@ class BackupService(
         val currentCategories = categories.observeAll().first().associateBy { it.id }
         val currentTransactions = transactions.observeAll().first().associateBy { it.id }
         val currentNotes = notes.observeAll().first().associateBy { it.id }
+        val deletedTransactions = transactions.observeDeletedIds().first()
+        val deletedNotes = notes.observeDeletedIds().first()
 
         var here = 0
         var differ = 0
@@ -87,8 +91,11 @@ class BackupService(
 
         val addAccounts = split(backup.accounts, { it.id }, currentAccounts) { a, b -> a.normalized() == b.normalized() }
         val addCategories = split(backup.categories, { it.id }, currentCategories) { a, b -> a == b }
-        val addTransactions = split(backup.transactions, { it.id }, currentTransactions) { a, b -> a.normalized() == b.normalized() }
-        val addNotes = split(backup.notes, { it.id }, currentNotes) { a, b -> a.normalized() == b.normalized() }
+        // A record deleted here after the backup was made is not missing: restoring it would
+        // undo someone's deletion, so it is counted apart and left deleted.
+        val deletedHere = backup.transactions.count { it.id in deletedTransactions } + backup.notes.count { it.id in deletedNotes }
+        val addTransactions = split(backup.transactions.filter { it.id !in deletedTransactions }, { it.id }, currentTransactions) { a, b -> a.normalized() == b.normalized() }
+        val addNotes = split(backup.notes.filter { it.id !in deletedNotes }, { it.id }, currentNotes) { a, b -> a.normalized() == b.normalized() }
 
         val knownAccounts: Set<AccountId> = currentAccounts.keys + backup.accounts.map { it.id }
         val knownCategories: Set<CategoryId> = currentCategories.keys + backup.categories.map { it.id } + DefaultCategories.all.map { it.id }
@@ -112,6 +119,7 @@ class BackupService(
             toAdd = backup.copy(accounts = addAccounts, categories = addCategories, transactions = addTransactions, notes = addNotes),
             alreadyHere = here,
             differ = differ,
+            deletedHere = deletedHere,
             brokenLinks = broken,
         )
     }
@@ -133,8 +141,10 @@ class BackupService(
         for (item in add.accounts) if (accounts.get(item.id) == null) { accounts.upsert(item); a++ }
         // Each lookup can be a round trip to the cloud, so many run at once; every record is
         // still checked individually right before it is written.
-        t = addMissing(add.transactions) { item -> if (transactions.get(item.id) == null) { transactions.upsert(item.authoredBy(me)); true } else false }
-        n = addMissing(add.notes) { item -> if (notes.get(item.id) == null) { notes.upsert(item.copy(createdBy = me)); true } else false }
+        val deletedTransactions = transactions.observeDeletedIds().first()
+        val deletedNotes = notes.observeDeletedIds().first()
+        t = addMissing(add.transactions.filter { it.id !in deletedTransactions }) { item -> if (transactions.get(item.id) == null) { transactions.upsert(item.authoredBy(me)); true } else false }
+        n = addMissing(add.notes.filter { it.id !in deletedNotes }) { item -> if (notes.get(item.id) == null) { notes.upsert(item.copy(createdBy = me)); true } else false }
         return RestoreResult(a, c, t, n)
     }
 

@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -153,16 +154,28 @@ class SessionManager(
 
     private fun membership(user: SignedInUser, workspaceId: WorkspaceId): Flow<SessionState> {
         val ref = db.collection("workspaces").document(workspaceId.value)
-        return combine(ref.collection("members").document(user.uid.value).snapshots(), ref.snapshots()) { member, workspace ->
+        // Set when the cloud refuses to let this person read the family (see MembershipDecision);
+        // cleared again by any membership snapshot the cloud itself confirms.
+        val refused = MutableStateFlow(false)
+        val onError: (Exception) -> Unit = {
+            if ((it as? FirebaseFirestoreException)?.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) refused.value = true
+        }
+        val member = ref.collection("members").document(user.uid.value).snapshots(onError)
+            .onEach { if (it != null && !it.metadata.isFromCache) refused.value = false }
+        return combine(member, ref.snapshots(onError), refused) { member, workspace, denied ->
             val me = member?.toMember()
-            when {
-                me == null || workspace == null || !workspace.exists() -> if (member?.metadata?.isFromCache != false) SessionState.Loading else null
-                // Just created or joined on this phone and not yet confirmed by the cloud: opening
-                // the family now would make its first reads before membership exists there, and
-                // the cloud would refuse them. An existing family opens at once, even offline.
-                member.metadata.hasPendingWrites() || workspace.metadata.hasPendingWrites() -> SessionState.Loading
-                !me.active -> null // removed by the admin
-                else -> SessionState.Ready(containerFor(Key(user, Workspace(workspaceId, workspace.getString("name").orEmpty()), me)))
+            val known = me != null && workspace != null && workspace.exists()
+            val view = MembershipDecision.decide(
+                known = known,
+                fromCache = member?.metadata?.isFromCache != false,
+                pendingWrites = known && (member!!.metadata.hasPendingWrites() || workspace!!.metadata.hasPendingWrites()),
+                refused = denied,
+                active = me?.active == true,
+            )
+            when (view) {
+                MembershipView.LOADING -> SessionState.Loading
+                MembershipView.NEEDS_FAMILY -> null
+                MembershipView.READY -> SessionState.Ready(containerFor(Key(user, Workspace(workspaceId, workspace!!.getString("name").orEmpty()), me!!)))
             }
         }.flatMapLatest { state -> if (state == null) needsFamily(user) else flowOf(state) }
     }

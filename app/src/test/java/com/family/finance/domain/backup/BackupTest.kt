@@ -103,15 +103,21 @@ class BackupTest {
         c.transactionService.delete(TransactionId("t1"))
 
         val plan = c.backupService.plan(backup)
-        assertThat(plan.toAdd.transactions.map { it.id.value }).containsExactly("t1")
+        // A deletion made after the backup is respected, not undone.
+        assertThat(plan.toAdd.transactions).isEmpty()
+        assertThat(plan.deletedHere).isEqualTo(1)
         assertThat(plan.differ).isEqualTo(1)
         val result = c.backupService.restore(plan)
-        assertThat(result.transactions).isEqualTo(1)
+        assertThat(result.transactions).isEqualTo(0)
 
         val e1 = c.transactionRepository.get(TransactionId("e1"))!!
         assertThat(e1.title).isEqualTo("மாற்றப்பட்டது")
         assertThat(e1.amount).isEqualTo(Money.ofRupees(9999))
-        assertThat(c.transactionRepository.get(TransactionId("t1"))).isNotNull()
+        assertThat(c.transactionRepository.get(TransactionId("t1"))).isNull()
+
+        // A record that is truly missing (never here) is still added.
+        val fresh = family("mother")
+        assertThat(fresh.backupService.plan(backup).toAdd.transactions.map { it.id.value }).contains("t1")
     }
 
     @Test fun `restoring the same backup twice adds nothing the second time`() = runTest {
@@ -147,6 +153,34 @@ class BackupTest {
         assertThat(problem(good.replace("\"date\":\"2026-10-15\"", "\"date\":\"15/10/2026\""))).isEqualTo(BackupProblem.BAD_RECORD)
         assertThat(problem(good.replace("\"amountPaise\":265005", "\"amountPaise\":0"))).isEqualTo(BackupProblem.BAD_RECORD)
         assertThat(problem(good.replace("\"id\":\"t1\"", "\"id\":\"e1\""))).isEqualTo(BackupProblem.DUPLICATE_ID)
+    }
+
+    @Test fun `edited files with unsafe IDs, dates, titles or amounts are rejected`() = runTest {
+        val good = BackupCodec.encode(seeded().backupService.create("F"))
+        fun problem(text: String) = (BackupCodec.decode(text) as BackupRead.Invalid).problem
+
+        // IDs become cloud document names: no paths, no reserved names, no empties.
+        for (bad in listOf("a/b", "..", ".", "__x__", "", "x".repeat(201))) {
+            assertThat(problem(good.replace("\"id\":\"n1\"", "\"id\":\"$bad\""))).isEqualTo(BackupProblem.BAD_RECORD)
+        }
+        assertThat(problem(good.replace("\"date\":\"2026-10-15\"", "\"date\":\"0000-10-15\""))).isEqualTo(BackupProblem.BAD_RECORD)
+        assertThat(problem(good.replace("\"title\":\"உர விலை\"", "\"title\":\"  \""))).isEqualTo(BackupProblem.BAD_RECORD)
+        assertThat(problem(good.replace("\"amountPaise\":265005", "\"amountPaise\":${Money.MAX_AMOUNT_PAISE + 1}"))).isEqualTo(BackupProblem.BAD_RECORD)
+        assertThat(problem(good.replace("\"openingBalancePaise\":2500050", "\"openingBalancePaise\":-${Money.MAX_AMOUNT_PAISE + 1}"))).isEqualTo(BackupProblem.BAD_RECORD)
+    }
+
+    @Test fun `restore leaves records deleted here since the backup deleted`() = runTest {
+        val c = seeded()
+        val backup = roundTrip(c)
+        c.transactionService.delete(TransactionId("e1"))
+        c.noteService.delete(NoteId("n1"))
+
+        val plan = c.backupService.plan(backup)
+        assertThat(plan.deletedHere).isEqualTo(2)
+        assertThat(plan.addCount).isEqualTo(0)
+        c.backupService.restore(plan)
+        assertThat(c.transactionRepository.get(TransactionId("e1"))).isNull()
+        assertThat(c.noteRepository.get(NoteId("n1"))).isNull()
     }
 
     @Test fun `a file with a byte order mark still reads`() = runTest {

@@ -200,6 +200,8 @@ class ReportsTest {
         assertThat(Reports.shareBasisPoints(rupees(5), Money.ZERO)).isEqualTo(0)
         // Totals in crores of rupees must not overflow.
         assertThat(Reports.shareBasisPoints(rupees(348_26_190), rupees(348_26_190))).isEqualTo(10_000)
+        // Even totals far above any real family's cannot overflow the percentage.
+        assertThat(Reports.shareBasisPoints(Money(Long.MAX_VALUE / 2), Money(Long.MAX_VALUE))).isEqualTo(5_000)
     }
 
     @Test fun `paise are kept exactly`() {

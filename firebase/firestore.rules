@@ -45,12 +45,16 @@ service cloud.firestore {
 
     function isDate(v) { return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); }
 
+    // Largest amount the app accepts, Rs 10,000 crore in paise (Money.MAX_AMOUNT_PAISE).
+    // Keeps every sum far from overflowing a 64-bit number on the phones.
+    function maxPaise() { return 10000000000000; }
+
     // Money is whole paise (CLAUDE.md, PRD 8.3).
     function validTransaction() {
       let d = request.resource.data;
       return stamped()
         && d.type in ['income', 'expense', 'transfer']
-        && d.amountPaise is int && d.amountPaise > 0
+        && d.amountPaise is int && d.amountPaise > 0 && d.amountPaise <= maxPaise()
         && isDate(d.date)
         && d.title is string
         && (d.type == 'transfer'
@@ -63,6 +67,7 @@ service cloud.firestore {
       return stamped()
         && d.name is string && d.name.size() > 0
         && d.openingBalancePaise is int
+        && d.openingBalancePaise >= -maxPaise() && d.openingBalancePaise <= maxPaise()
         && isDate(d.openingBalanceDate)
         && d.isActive is bool;
     }
@@ -123,6 +128,7 @@ service cloud.firestore {
         allow create: if signedIn() && memberId == me()
           && request.resource.data.status == 'active'
           && request.resource.data.email == myEmail()
+          && request.resource.data.keys().hasOnly(['role', 'status', 'email', 'displayName', 'createdAt'])
           && (
             // Founder: the workspace is new in this same batch and names them as creator.
             (request.resource.data.role == 'admin'
@@ -133,10 +139,16 @@ service cloud.firestore {
             (request.resource.data.role == 'member'
               && request.auth.token.email_verified == true
               && exists(inviteDoc(myEmail()))
-              && get(inviteDoc(myEmail())).data.workspaceId == wid)
+              && get(inviteDoc(myEmail())).data.workspaceId == wid
+              // The invite is used up in the same batch, so it cannot be used twice.
+              && !existsAfter(inviteDoc(myEmail())))
           );
-        // Admin manages others' membership, but cannot lock themselves out.
-        allow update, delete: if isAdmin(wid) && memberId != me();
+        // The admin can only remove or re-admit someone else: never change their role,
+        // email or name, and never erase the record (so a removal is always visible).
+        allow update: if isAdmin(wid) && memberId != me()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && request.resource.data.status in ['active', 'removed'];
+        allow delete: if false;
       }
 
       match /accounts/{id} {

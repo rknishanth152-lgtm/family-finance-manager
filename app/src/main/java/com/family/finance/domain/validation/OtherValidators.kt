@@ -5,8 +5,12 @@ import com.family.finance.domain.model.Money
 object AccountValidator {
     fun validate(draft: AccountDraft): List<ValidationError> = buildList {
         if (draft.name.isBlank()) add(ValidationError(Field.NAME, Reason.REQUIRED))
-        if (draft.openingBalanceText.isNotBlank() && Money.parse(draft.openingBalanceText) == null) {
-            add(ValidationError(Field.OPENING_BALANCE, Reason.INVALID_FORMAT))
+        if (draft.openingBalanceText.isNotBlank()) {
+            val opening = Money.parse(draft.openingBalanceText)
+            when {
+                opening == null -> add(ValidationError(Field.OPENING_BALANCE, Reason.INVALID_FORMAT))
+                !opening.isWithinLimit -> add(ValidationError(Field.OPENING_BALANCE, Reason.TOO_LARGE))
+            }
         }
         if (draft.openingBalanceDate == null) add(ValidationError(Field.DATE, Reason.REQUIRED))
     }
@@ -26,6 +30,6 @@ object NoteValidator {
 
 /** A plausible email for inviting a family member (Google checks the real account at sign-in). */
 object EmailValidator {
-    private val pattern = Regex("""^[^\s@]+@[^\s@]+\.[^\s@]{2,}$""")
+    private val pattern = Regex("""^[^\s@/]+@[^\s@/]+\.[^\s@/]{2,}$""")
     fun isValid(email: String): Boolean = pattern.matches(email.trim())
 }

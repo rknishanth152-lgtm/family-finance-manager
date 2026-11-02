@@ -78,6 +78,11 @@ class CsvExporterTest {
         assertThat(CsvExporter.field(Cell.Amount(com.family.finance.domain.model.Money(-12_345)))).isEqualTo("-123.45")
     }
 
+    @Test fun `text is always quoted, so it is never read as a number or date`() {
+        assertThat(CsvExporter.field(Cell.Text("0012"))).isEqualTo("\"0012\"")
+        assertThat(CsvExporter.field(Cell.Text("say \"hi\""))).isEqualTo("\"say \"\"hi\"\"\"")
+    }
+
     @Test fun `lines end with CRLF`() {
         assertThat(text.removePrefix("\uFEFF").split("\r\n").filter { it.isNotEmpty() }).hasSize(4)
     }

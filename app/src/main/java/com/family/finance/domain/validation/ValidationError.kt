@@ -16,6 +16,8 @@ enum class Reason {
     ARCHIVED,
     WRONG_KIND,
     SAME_AS_SOURCE,
+    /** Above [com.family.finance.domain.model.Money.MAX_AMOUNT_PAISE]. */
+    TOO_LARGE,
 }
 
 data class ValidationError(val field: Field, val reason: Reason)

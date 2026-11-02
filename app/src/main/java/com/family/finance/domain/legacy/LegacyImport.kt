@@ -51,7 +51,7 @@ data class LegacySource(
     val notes: List<LegacyNote>,
 )
 
-enum class RejectReason { NO_AMOUNT, BOTH_AMOUNTS, NOT_EXACT_PAISE, UNKNOWN_CATEGORY, UNKNOWN_PAYMENT_METHOD, CATEGORY_KIND_MISMATCH }
+enum class RejectReason { NO_AMOUNT, BOTH_AMOUNTS, NOT_EXACT_PAISE, AMOUNT_TOO_LARGE, UNKNOWN_CATEGORY, UNKNOWN_PAYMENT_METHOD, CATEGORY_KIND_MISMATCH }
 
 data class CategoryMapping(val oldName: String, val newId: CategoryId, val kind: CategoryKind, val entries: Int)
 data class AccountMapping(val oldName: String, val newId: AccountId, val entries: Int, val income: Money, val expense: Money)
@@ -107,6 +107,7 @@ object LegacyImport {
             val method = e.paymentMethod?.let(methodsByName::get)
             when {
                 !e.exactAmounts -> reject(e, RejectReason.NOT_EXACT_PAISE)
+                e.incomePaise > Money.MAX_AMOUNT_PAISE || e.expensePaise > Money.MAX_AMOUNT_PAISE -> reject(e, RejectReason.AMOUNT_TOO_LARGE)
                 e.incomePaise > 0 && e.expensePaise > 0 -> reject(e, RejectReason.BOTH_AMOUNTS)
                 e.incomePaise <= 0 && e.expensePaise <= 0 -> reject(e, RejectReason.NO_AMOUNT)
                 category == null -> reject(e, RejectReason.UNKNOWN_CATEGORY)

@@ -31,6 +31,9 @@ interface TransactionRepository {
     /** Soft delete: the record disappears from lists but the deletion syncs and is logged. */
     suspend fun delete(id: TransactionId)
 
+    /** IDs of soft-deleted records. They still exist in storage, so a restore must not revive them. */
+    fun observeDeletedIds(): Flow<Set<TransactionId>>
+
     /** Every save (and delete) of each transaction, used to spot edits made on both phones. */
     fun observeEditLog(): Flow<Map<TransactionId, List<EditEntry>>>
 }
@@ -52,6 +55,9 @@ interface NoteRepository {
     suspend fun get(id: NoteId): NoteEntry?
     suspend fun upsert(note: NoteEntry)
     suspend fun delete(id: NoteId)
+
+    /** IDs of soft-deleted notes; see [TransactionRepository.observeDeletedIds]. */
+    fun observeDeletedIds(): Flow<Set<NoteId>>
 }
 
 /** The family workspace as seen by the signed-in person (PRD 3.3, 10.2). */

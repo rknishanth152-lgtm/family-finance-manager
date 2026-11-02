@@ -91,7 +91,8 @@ class BackupViewModel(
 
     fun confirmRestore() {
         val preview = _status.value as? BackupStatus.Preview ?: return
-        if (!preview.plan.canRestore) return
+        // Restoring only once in sync, so a record that exists in the cloud is never taken as missing.
+        if (!preview.plan.canRestore || !canBackUp.value) return
         work { BackupStatus.Restored(service.restore(preview.plan)) }
     }
 
@@ -126,7 +127,12 @@ class LegacyImportViewModel(
     private val clock: Clock,
     private val readSource: suspend (Uri) -> LegacySource,
     private val isFormatError: (Throwable) -> Boolean,
+    sync: Flow<SyncState> = flowOf(SyncState.SYNCED),
 ) : ViewModel() {
+
+    /** Importing only once in sync, so "already here" checks see every record the cloud has. */
+    val canImport: StateFlow<Boolean> = sync.map { it == SyncState.SYNCED }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     private val _status = MutableStateFlow<ImportStatus>(ImportStatus.Idle)
     val status: StateFlow<ImportStatus> = _status.asStateFlow()
@@ -141,7 +147,7 @@ class LegacyImportViewModel(
 
     fun import() {
         val checked = _status.value as? ImportStatus.Checked ?: return
-        if (!checked.plan.canRestore) return
+        if (!checked.plan.canRestore || !canImport.value) return
         work { ImportStatus.Imported(checked.report, service.restore(checked.plan)) }
     }
 

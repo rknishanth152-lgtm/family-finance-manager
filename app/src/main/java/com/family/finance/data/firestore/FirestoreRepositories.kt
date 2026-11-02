@@ -28,6 +28,10 @@ private fun <T> List<DocumentSnapshot>.live(decode: (String, Map<String, Any?>) 
     filter { it.exists() && it.getBoolean("deleted") != true }
         .mapNotNull { doc -> runCatching { decode(doc.id, doc.fields()) }.getOrNull() }
 
+/** Document IDs marked deleted = true in a snapshot. */
+private fun com.google.firebase.firestore.QuerySnapshot?.deletedIds(): List<String> =
+    this?.documents.orEmpty().filter { it.getBoolean("deleted") == true }.map { it.id }
+
 /** Stamp fields are rebuilt by RecordWriter; drop the stored ones before re-stamping. */
 private fun Map<String, Any?>.withoutStamps() = this - setOf("version", "deleted", "updatedBy", "updatedAt")
 
@@ -40,6 +44,9 @@ class FirestoreTransactionRepository internal constructor(
 ) : TransactionRepository {
     private val transactions = workspace.collection("transactions")
     private val edits = workspace.collection("edits")
+
+    override fun observeDeletedIds(): Flow<Set<TransactionId>> =
+        transactions.snapshots(errors::report).map { it.deletedIds().map(::TransactionId).toSet() }
 
     override fun observeAll(): Flow<List<Transaction>> =
         transactions.snapshots(errors::report).map { it?.documents.orEmpty().live(RecordMapping::decodeTransaction) }
@@ -168,6 +175,9 @@ class FirestoreNoteRepository internal constructor(
     private val errors: WriteErrors,
 ) : NoteRepository {
     private val notes = workspace.collection("notes")
+
+    override fun observeDeletedIds(): Flow<Set<NoteId>> =
+        notes.snapshots(errors::report).map { it.deletedIds().map(::NoteId).toSet() }
 
     override fun observeAll(): Flow<List<NoteEntry>> =
         notes.snapshots(errors::report).map { it?.documents.orEmpty().live(RecordMapping::decodeNote) }

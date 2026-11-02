@@ -54,6 +54,17 @@ class ValidatorsTest {
         assertTrue(transfer(validTransfer).isEmpty())
     }
 
+    @Test fun `amounts above Rs 10,000 crore are rejected, so totals can never overflow`() {
+        val e = err(Field.AMOUNT, Reason.TOO_LARGE)
+        assertEquals(e, income(validIncome.copy(amountText = "100000000000.01")))
+        assertEquals(e, expense(validExpense.copy(amountText = "100000000001")))
+        assertEquals(e, transfer(validTransfer.copy(amountText = "100000000001")))
+        assertTrue(expense(validExpense.copy(amountText = "100000000000")).isEmpty())
+        val account = com.family.finance.domain.validation.AccountDraft("Bank", com.family.finance.domain.model.AccountType.SAVINGS, "-100000000001", date("2026-03-01"))
+        assertEquals(err(Field.OPENING_BALANCE, Reason.TOO_LARGE), AccountValidator.validate(account))
+        assertEquals(err(Field.OPENING_BALANCE, Reason.INVALID_FORMAT), AccountValidator.validate(account.copy(openingBalanceText = "12abc")))
+    }
+
     @Test fun `zero amount is rejected for every type`() {
         val e = err(Field.AMOUNT, Reason.NOT_POSITIVE)
         assertEquals(e, income(validIncome.copy(amountText = "0")))

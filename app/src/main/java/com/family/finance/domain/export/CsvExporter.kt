@@ -46,6 +46,6 @@ object CsvExporter {
 
     private val FORMULA_STARTS = charArrayOf('=', '+', '-', '@', '\t', '\r')
 
-    private fun quote(value: String): String =
-        if (value.any { it == ',' || it == '"' || it == '\n' || it == '\r' }) "\"${value.replace("\"", "\"\"")}\"" else value
+    /** Text is always quoted, so no spreadsheet guesses it is a number, date or formula. */
+    private fun quote(value: String): String = "\"${value.replace("\"", "\"\"")}\""
 }

@@ -103,6 +103,7 @@
     <string name="error_choose_date">Please choose a date.</string>
     <string name="error_amount_format">Enter an amount like 250 or 250.50 (at most 2 digits after the point).</string>
     <string name="error_amount_positive">The amount must be more than zero.</string>
+    <string name="error_amount_too_large">That amount is too large. The most one entry can be is ₹10,000 crore.</string>
     <string name="error_not_found">This item no longer exists. Please choose another.</string>
     <string name="error_account_archived">This account is archived. Choose another or restore it in Accounts.</string>
     <string name="error_category_archived">This category is archived. Choose another or restore it in Categories.</string>
@@ -356,6 +357,7 @@
     <string name="restore_in_file">Entries in the file</string>
     <string name="restore_already_here">Already in the app</string>
     <string name="restore_differ">Different here (kept as they are)</string>
+    <string name="restore_deleted_here">Deleted here since the backup (kept deleted)</string>
     <string name="restore_will_add">Will be added</string>
     <string name="restore_nothing_to_add">Everything in this backup is already in the app.</string>
     <plurals name="restore_broken">
@@ -386,6 +388,7 @@
     <string name="import_reject_unknown_category">Unknown category</string>
     <string name="import_reject_unknown_account">Unknown payment method</string>
     <string name="import_reject_kind_mismatch">Category of the wrong kind</string>
+    <string name="import_reject_too_large">Amount above ₹10,000 crore</string>
     <string name="import_categories_used">Categories (his own names)</string>
     <string name="import_categories_unused">Unused categories (not brought across)</string>
     <string name="import_untitled">Entries without a description (titled with the category)</string>

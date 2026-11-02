@@ -247,3 +247,55 @@ describe('family records', () => {
     await assertFails(setDoc(doc(father(), `workspaces/${WID}/notes/n1`), { ...stamp, title: '', description: '', date: '2026-11-01' }));
   });
 });
+
+describe('security audit hardening', () => {
+  const MAX = 10000000000000; // Rs 10,000 crore in paise, as Money.MAX_AMOUNT_PAISE
+
+  test('amounts above the app limit are refused, so totals can never overflow', async () => {
+    await seedFamily();
+    const db = father();
+    await assertSucceeds(setDoc(doc(db, `workspaces/${WID}/transactions/t1`), txn({ amountPaise: MAX })));
+    await assertFails(setDoc(doc(db, `workspaces/${WID}/transactions/t2`), txn({ amountPaise: MAX + 1 })));
+    await assertFails(setDoc(doc(db, `workspaces/${WID}/transactions/t3`), txn({ amountPaise: 9007199254740991 })));
+  });
+
+  test('opening balances stay within the same limit, either way', async () => {
+    await seedFamily();
+    const stamp = { createdBy: 'father', createdAt: serverTimestamp(), updatedBy: 'father', updatedAt: serverTimestamp(), version: 1, deleted: false };
+    const account = (paise) => ({ ...stamp, name: 'Bank', type: 'SAVINGS', openingBalancePaise: paise, openingBalanceDate: '2026-11-01', isActive: true });
+    await assertSucceeds(setDoc(doc(father(), `workspaces/${WID}/accounts/a1`), account(-MAX)));
+    await assertFails(setDoc(doc(father(), `workspaces/${WID}/accounts/a2`), account(MAX + 1)));
+    await assertFails(setDoc(doc(father(), `workspaces/${WID}/accounts/a3`), account(-MAX - 1)));
+  });
+
+  test('the admin can remove a member but not change their role, email, or erase them', async () => {
+    await seedFamily({ withMother: true });
+    const db = father();
+    await assertFails(updateDoc(doc(db, `workspaces/${WID}/members/mother`), { role: 'admin' }));
+    await assertFails(updateDoc(doc(db, `workspaces/${WID}/members/mother`), { email: 'someone@example.com' }));
+    await assertFails(updateDoc(doc(db, `workspaces/${WID}/members/mother`), { status: 'banana' }));
+    await assertFails(deleteDoc(doc(db, `workspaces/${WID}/members/mother`)));
+    await assertSucceeds(updateDoc(doc(db, `workspaces/${WID}/members/mother`), { status: 'removed' }));
+    await assertSucceeds(updateDoc(doc(db, `workspaces/${WID}/members/mother`), { status: 'active' }));
+  });
+
+  test('joining must use up the invite in the same step', async () => {
+    await seedFamily();
+    await env.withSecurityRulesDisabled((ctx) => setDoc(doc(ctx.firestore(), 'invites/mother@example.com'), { workspaceId: WID, role: 'member', invitedBy: 'father' }));
+    await assertFails(setDoc(doc(mother(), `workspaces/${WID}/members/mother`), {
+      role: 'member', status: 'active', email: 'mother@example.com', displayName: 'Mother', createdAt: serverTimestamp(),
+    }));
+  });
+
+  test('a new membership cannot carry extra fields', async () => {
+    await seedFamily();
+    await env.withSecurityRulesDisabled((ctx) => setDoc(doc(ctx.firestore(), 'invites/mother@example.com'), { workspaceId: WID, role: 'member', invitedBy: 'father' }));
+    const db = mother();
+    const b = writeBatch(db);
+    b.set(doc(db, `workspaces/${WID}/members/mother`), {
+      role: 'member', status: 'active', email: 'mother@example.com', displayName: 'Mother', createdAt: serverTimestamp(), isOwner: true,
+    });
+    b.delete(doc(db, 'invites/mother@example.com'));
+    await assertFails(b.commit());
+  });
+});

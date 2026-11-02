@@ -41,11 +41,14 @@ class InMemoryTransactionRepository(
     private val store = InMemoryStore<TransactionId, Transaction>({ it.id })
     private val versions = mutableMapOf<TransactionId, Int>()
     private val log = MutableStateFlow<Map<TransactionId, List<EditEntry>>>(emptyMap())
+    private val deleted = MutableStateFlow<Set<TransactionId>>(emptySet())
 
     override fun observeAll() = store.observe()
     override suspend fun get(id: TransactionId) = store.get(id)
+    override fun observeDeletedIds(): Flow<Set<TransactionId>> = deleted
 
     override suspend fun upsert(transaction: Transaction) {
+        deleted.update { it - transaction.id }
         store.upsert(transaction)
         record(transaction.id, transaction)
     }
@@ -53,6 +56,7 @@ class InMemoryTransactionRepository(
     override suspend fun delete(id: TransactionId) {
         if (store.get(id) == null) return
         store.delete(id)
+        deleted.update { it + id }
         record(id, null)
     }
 
@@ -84,8 +88,17 @@ class InMemoryCategoryRepository(initial: List<Category> = emptyList()) : Catego
 
 class InMemoryNoteRepository : NoteRepository {
     private val store = InMemoryStore<NoteId, NoteEntry>({ it.id })
+    private val deleted = MutableStateFlow<Set<NoteId>>(emptySet())
     override fun observeAll() = store.observe()
     override suspend fun get(id: NoteId) = store.get(id)
-    override suspend fun upsert(note: NoteEntry) = store.upsert(note)
-    override suspend fun delete(id: NoteId) = store.delete(id)
+    override fun observeDeletedIds(): Flow<Set<NoteId>> = deleted
+    override suspend fun upsert(note: NoteEntry) {
+        deleted.update { it - note.id }
+        store.upsert(note)
+    }
+    override suspend fun delete(id: NoteId) {
+        if (store.get(id) == null) return
+        store.delete(id)
+        deleted.update { it + id }
+    }
 }

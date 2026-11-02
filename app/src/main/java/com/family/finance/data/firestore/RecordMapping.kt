@@ -55,6 +55,8 @@ object RecordMapping {
     fun decodeTransaction(id: String, d: Map<String, Any?>): Transaction {
         val txId = TransactionId(id)
         val amount = Money(d.long("amountPaise"))
+        // Out-of-range values are refused here, so one bad record is skipped, never summed.
+        require(amount.isPositive && amount.isWithinLimit) { "amount out of range" }
         val date = LocalDate.parse(d.string("date"))
         val title = d.string("title")
         val notes = d["notes"] as String?
@@ -96,7 +98,7 @@ object RecordMapping {
         id = AccountId(id),
         name = d.string("name"),
         type = runCatching { AccountType.valueOf(d.string("type")) }.getOrDefault(AccountType.OTHER),
-        openingBalance = Money(d.long("openingBalancePaise")),
+        openingBalance = Money(d.long("openingBalancePaise")).also { require(it.isWithinLimit) { "opening balance out of range" } },
         openingBalanceDate = LocalDate.parse(d.string("openingBalanceDate")),
         isActive = d["isActive"] as Boolean? ?: true,
         createdAt = d.instant("createdAt"),

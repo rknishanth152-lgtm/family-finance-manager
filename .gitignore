@@ -16,7 +16,7 @@ captures/
 *.db-wal
 
 # Generated screenshots (regenerate with ScreenTourTest)
-docs/screen-tour/
+Docs/screen-tour/
 
 
 # Firebase config (PRD 4.4: credentials stay out of the repo)
