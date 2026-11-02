@@ -2,7 +2,12 @@ package com.family.finance.ui.categories
 
 import com.family.finance.ui.theme.Spacing
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -107,9 +112,8 @@ fun CategoriesRoute(onBack: () -> Unit) {
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = Spacing.fabClearance)) {
                 items(labelled.filter { !it.first.isArchived }, key = { it.first.id.value }) { (c, label) ->
                     ListItem(
-                        headlineContent = { Text(label) },
-                        trailingContent = {
-                            Column {
+                        headlineContent = {
+                            NameWithActions(label) {
                                 TextButton(onClick = { dialog = Dialog.Rename(c) }) { Text(stringResource(R.string.action_rename)) }
                                 TextButton(onClick = { vm.setArchived(c.id, true) }) { Text(stringResource(R.string.action_archive)) }
                             }
@@ -121,9 +125,10 @@ fun CategoriesRoute(onBack: () -> Unit) {
                     item { SectionHeader(R.string.categories_archived) }
                     items(archived, key = { it.first.id.value }) { (c, label) ->
                         ListItem(
-                            headlineContent = { Text(label) },
-                            trailingContent = {
-                                TextButton(onClick = { vm.setArchived(c.id, false) }) { Text(stringResource(R.string.action_restore)) }
+                            headlineContent = {
+                                NameWithActions(label) {
+                                    TextButton(onClick = { vm.setArchived(c.id, false) }) { Text(stringResource(R.string.action_restore)) }
+                                }
                             },
                         )
                     }
@@ -157,5 +162,21 @@ fun CategoriesRoute(onBack: () -> Unit) {
             },
             dismissButton = { TextButton(onClick = { dialog = null }) { Text(stringResource(R.string.action_cancel)) } },
         )
+    }
+}
+
+/**
+ * Category name with its buttons on the same line when both fit. At large font sizes the
+ * buttons move under the name instead of squeezing it to a letter per line.
+ */
+@Composable
+private fun NameWithActions(name: String, actions: @Composable () -> Unit) {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(name, modifier = Modifier.padding(vertical = Spacing.sm))
+        Row { actions() }
     }
 }

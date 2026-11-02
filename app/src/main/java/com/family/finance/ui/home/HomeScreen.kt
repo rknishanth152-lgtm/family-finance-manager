@@ -26,7 +26,14 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.unit.dp
+import com.family.finance.domain.sync.SyncState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,6 +89,39 @@ fun HomeRoute(
     )
 }
 
+/**
+ * App name with the sync status beside it. A standard top bar measures the status first and
+ * squeezes the title into what is left, which at large Tamil font sizes broke the title into
+ * single letters. Here the two share a wrapping row: side by side when both fit, otherwise
+ * the status moves to its own line under the title, which keeps its words whole.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeHeader(sync: SyncState) {
+    Surface(color = MaterialTheme.colorScheme.surface) {
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(TopAppBarDefaults.windowInsets)
+                .heightIn(min = HEADER_MIN_HEIGHT)
+                .padding(start = Spacing.md, end = Spacing.xs),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalArrangement = Arrangement.Center,
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                stringResource(R.string.app_name),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(vertical = Spacing.sm).semantics { heading() },
+            )
+            SyncIndicator(sync, Modifier.padding(vertical = Spacing.sm))
+        }
+    }
+}
+
+/** Same height as a standard top bar, so nothing moves at normal font sizes. */
+private val HEADER_MIN_HEIGHT = 64.dp
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -94,14 +134,7 @@ fun HomeScreen(
     onSeeAll: () -> Unit,
     onAddAccount: () -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
-                actions = { SyncIndicator(state.sync) },
-            )
-        },
-    ) { padding ->
+    Scaffold(topBar = { HomeHeader(state.sync) }) { padding ->
         // Draw nothing until data arrives, so the dashboard never flashes before the empty state.
         if (state.loading) return@Scaffold
         if (!state.hasAccounts) {
