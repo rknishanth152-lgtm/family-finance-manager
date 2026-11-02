@@ -33,7 +33,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import android.view.KeyEvent
 import androidx.test.platform.app.InstrumentationRegistry
-import com.family.finance.data.AppContainer
+import com.family.finance.di.AppContainer
 import com.family.finance.domain.model.AccountId
 import com.family.finance.domain.model.AccountType
 import com.family.finance.domain.model.DefaultCategories
@@ -143,8 +143,17 @@ class ScreenTourTest {
 
     /** Lazy lists only compose what is on screen, so scroll down to check the lower sections too. */
     private fun scrollReportsTo(headingRes: Int) {
-        compose.onAllNodes(hasScrollToIndexAction()).onFirst().performScrollToNode(hasText(str(headingRes)))
+        // The tab pager and the neighbouring tabs' lists are scrollable too: use the vertical
+        // list that is on screen now.
+        val lists = compose.onAllNodes(hasScrollToIndexAction() and verticalList)
+        // Off-screen tabs report an empty box, so the visible list is the one with a real size.
+        val onScreen = lists.fetchSemanticsNodes().indexOfFirst { it.boundsInRoot.width > 0f && it.boundsInRoot.left in -1f..1f }
+        lists[onScreen].performScrollToNode(hasText(str(headingRes)))
         compose.waitForIdle()
+    }
+
+    private val verticalList = SemanticsMatcher("vertical list") {
+        it.config.getOrNull(SemanticsProperties.CollectionInfo)?.columnCount == 1
     }
 
     /** Closes the open dialog or sheet. */

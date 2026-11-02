@@ -1,6 +1,6 @@
 package com.family.finance.testing
 
-import com.family.finance.data.AppContainer
+import com.family.finance.di.AppContainer
 import com.family.finance.domain.model.Account
 import com.family.finance.domain.model.AccountId
 import com.family.finance.domain.model.AccountType

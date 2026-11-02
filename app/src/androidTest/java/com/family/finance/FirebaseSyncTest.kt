@@ -1,9 +1,9 @@
 package com.family.finance
 
 import androidx.test.platform.app.InstrumentationRegistry
-import com.family.finance.data.AppContainer
-import com.family.finance.data.SessionManager
-import com.family.finance.data.SessionState
+import com.family.finance.di.AppContainer
+import com.family.finance.data.session.SessionManager
+import com.family.finance.data.session.SessionState
 import com.family.finance.domain.model.AccountId
 import com.family.finance.domain.model.AccountType
 import com.family.finance.domain.model.DefaultCategories

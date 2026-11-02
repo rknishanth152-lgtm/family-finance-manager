@@ -1,7 +1,7 @@
 package com.family.finance
 
 import android.app.Application
-import com.family.finance.data.SessionManager
+import com.family.finance.data.session.SessionManager
 import com.family.finance.data.crash.CrashLog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

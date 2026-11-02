@@ -1,7 +1,7 @@
 package com.family.finance
 
 import androidx.test.platform.app.InstrumentationRegistry
-import com.family.finance.data.AppContainer
+import com.family.finance.di.AppContainer
 
 /**
  * For UI tests that don't exercise Firebase: puts a fresh in-memory family in place of

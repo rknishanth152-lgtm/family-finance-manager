@@ -3,7 +3,7 @@ package com.family.finance
 import android.net.Uri
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
-import com.family.finance.data.AppContainer
+import com.family.finance.di.AppContainer
 import com.family.finance.data.legacy.LegacyDbReader
 import com.family.finance.domain.calc.IncomeExpenseTotals
 import com.family.finance.domain.legacy.LegacyImport

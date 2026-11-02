@@ -1,4 +1,4 @@
-package com.family.finance.data
+package com.family.finance.data.session
 
 import android.content.Context
 import com.family.finance.data.firestore.FirestoreAccountRepository
@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import java.time.Clock
+import com.family.finance.di.AppContainer
 
 /** An invite waiting for the signed-in person, shown on the "join your family" screen. */
 data class PendingInvite(val workspaceId: WorkspaceId, val workspaceName: String, val invitedByName: String)

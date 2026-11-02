@@ -1,4 +1,4 @@
-package com.family.finance.data
+package com.family.finance.data.session
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

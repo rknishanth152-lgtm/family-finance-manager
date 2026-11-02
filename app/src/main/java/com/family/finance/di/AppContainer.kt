@@ -1,4 +1,4 @@
-package com.family.finance.data
+package com.family.finance.di
 
 import com.family.finance.domain.backup.BackupService
 import com.family.finance.domain.model.DefaultCategories
@@ -17,6 +17,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import java.time.Clock
 import java.time.LocalDate
+import com.family.finance.data.preferences.EntryDefaults
+import com.family.finance.data.memory.InMemoryTransactionRepository
+import com.family.finance.data.memory.InMemoryAccountRepository
+import com.family.finance.data.memory.InMemoryCategoryRepository
+import com.family.finance.data.memory.InMemoryNoteRepository
+import com.family.finance.data.memory.InMemoryFamilyRepository
+import com.family.finance.data.session.SessionManager
 
 /**
  * Everything the finance screens need for one signed-in person in one family workspace.

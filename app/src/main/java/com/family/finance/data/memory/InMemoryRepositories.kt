@@ -1,4 +1,4 @@
-package com.family.finance.data
+package com.family.finance.data.memory
 
 import com.family.finance.domain.model.Account
 import com.family.finance.domain.model.AccountId

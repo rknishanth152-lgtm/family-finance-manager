@@ -2,7 +2,7 @@ package com.family.finance.ui.form
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.family.finance.data.EntryDefaults
+import com.family.finance.data.preferences.EntryDefaults
 import com.family.finance.domain.model.Account
 import com.family.finance.domain.model.AccountId
 import com.family.finance.domain.model.Category

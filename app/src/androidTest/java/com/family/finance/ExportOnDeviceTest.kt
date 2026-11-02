@@ -7,7 +7,7 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.core.content.FileProvider
 import androidx.test.platform.app.InstrumentationRegistry
-import com.family.finance.data.AppContainer
+import com.family.finance.di.AppContainer
 import com.family.finance.data.export.ExportFormat
 import com.family.finance.data.export.ExportRequest
 import com.family.finance.data.export.ExportService

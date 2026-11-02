@@ -7,27 +7,25 @@ local.properties
 .kotlin/
 captures/
 
-# No license in upstream repo (ceorkm/mobile-app-ui-design): keep local only
-.claude/skills/mobile-app-ui-design/
+# AI assistant skills are third-party tooling, kept local only (see CLAUDE.md for project rules)
+.claude/skills/
 
 # Real financial data (legacy app backups) must never be committed
 *.db
 *.db-journal
 *.db-wal
 
-# Generated screenshots (regenerate with ScreenTourTest)
-Docs/screen-tour/
-
+# Generated screenshots (regenerate with ScreenTourTest); curated ones live in docs/screenshots/
+docs/screen-tour/
 
 # Firebase config (PRD 4.4: credentials stay out of the repo)
 google-services.json
+# Which Firebase project the CLI deploys to; copy firebase/.firebaserc.example
+firebase/.firebaserc
 
 # Firebase tooling
 firebase/node_modules/
 firebase/*.log
-
-# Local helper for running emulator-backed device tests
-run-sync-tests.cmd
 
 # Release signing key and its passwords (PRD 16.2: backed up safely, never committed)
 keystore.properties
@@ -39,5 +37,8 @@ family-finance-backup*.json
 family-finance_*.pdf
 family-finance_*.csv
 family-finance_*.xlsx
+
+# Local helper scripts (machine-specific paths)
+run-sync-tests.cmd
 run-sync-tests-isolated.cmd
 create-release-key.ps1

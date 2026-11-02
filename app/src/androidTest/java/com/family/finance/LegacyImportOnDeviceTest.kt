@@ -3,7 +3,7 @@ package com.family.finance
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
-import com.family.finance.data.AppContainer
+import com.family.finance.di.AppContainer
 import com.family.finance.data.backup.BackupFiles
 import com.family.finance.data.legacy.LegacyDbReader
 import com.family.finance.data.legacy.LegacyFormatException

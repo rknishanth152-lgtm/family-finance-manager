@@ -1,4 +1,4 @@
-package com.family.finance.data
+package com.family.finance.data.preferences
 
 import com.family.finance.domain.model.AccountId
 import com.family.finance.domain.model.CategoryId

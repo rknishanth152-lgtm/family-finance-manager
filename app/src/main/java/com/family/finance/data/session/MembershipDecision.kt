@@ -1,4 +1,4 @@
-package com.family.finance.data
+package com.family.finance.data.session
 
 /** What the app should show for one family, from what the phone knows about the membership. */
 enum class MembershipView { LOADING, NEEDS_FAMILY, READY }

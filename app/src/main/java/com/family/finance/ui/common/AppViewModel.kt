@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.family.finance.data.AppContainer
+import com.family.finance.di.AppContainer
 
 val LocalAppContainer = staticCompositionLocalOf<AppContainer> {
     error("AppContainer not provided")

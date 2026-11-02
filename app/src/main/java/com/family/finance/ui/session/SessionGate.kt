@@ -44,9 +44,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.family.finance.R
-import com.family.finance.data.NotAllowedToCreateFamily
-import com.family.finance.data.SessionManager
-import com.family.finance.data.SessionState
+import com.family.finance.data.session.NotAllowedToCreateFamily
+import com.family.finance.data.session.SessionManager
+import com.family.finance.data.session.SessionState
 import com.family.finance.ui.common.LocalAppContainer
 import com.family.finance.ui.navigation.AppNavHost
 import com.family.finance.ui.theme.Spacing
