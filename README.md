@@ -13,10 +13,10 @@ Two people, two phones, one shared set of books, kept to the paisa.
 ![Android](https://img.shields.io/badge/Android-8.0%2B%20(API%2026)-3DDC84?logo=android&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-195%20unit%20%C2%B7%2029%20rules%20%C2%B7%2022%20device-2E7D32)
 
-<img src="docs/screenshots/home.jpg" width="200" alt="Home screen" />&nbsp;
-<img src="docs/screenshots/transactions.jpg" width="200" alt="Transactions" />&nbsp;
-<img src="docs/screenshots/reports-categories.jpg" width="200" alt="Reports by category" />&nbsp;
-<img src="docs/screenshots/home-tamil.jpg" width="200" alt="Home screen in Tamil" />
+<img src="docs/screenshots/home.jpg" width="180" alt="Home screen" />&nbsp;
+<img src="docs/screenshots/transactions.jpg" width="180" alt="Transactions" />&nbsp;
+<img src="docs/screenshots/reports-categories.jpg" width="180" alt="Reports by category" />&nbsp;
+<img src="docs/screenshots/home-tamil.jpg" width="180" alt="Home screen in Tamil" />
 
 </div>
 
@@ -94,36 +94,20 @@ domain. The domain is pure Kotlin with no Android or Firebase imports, so every 
 tested on the JVM in milliseconds.
 
 ```mermaid
-flowchart TB
-    subgraph UI["ui — Jetpack Compose + ViewModels"]
-        direction LR
-        Screens["Screens<br/>(home, transactions, calendar,<br/>reports, form, backup …)"] --> VMs["ViewModels<br/>StateFlow UI state"]
-    end
+flowchart LR
+    UI["<b>ui</b><br/>Compose screens<br/>ViewModels · StateFlow"]
+    Domain["<b>domain</b> · pure Kotlin<br/>Money · models · validators<br/>services · reports · backup"]
+    Data["<b>data</b><br/>Firestore repositories<br/>session · export · import · crash log"]
+    Cloud[("Cloud Firestore<br/>+ offline cache")]
+    Auth[("Firebase Auth<br/>Google sign-in")]
 
-    subgraph Domain["domain — pure Kotlin"]
-        direction LR
-        UseCases["Services<br/>transactions, accounts, backup"] --> Rules["Validators · calculators<br/>reports · exports · legacy import"]
-        UseCases --> Repos[["Repository interfaces"]]
-        Rules --> Model["Model<br/>Money (Long paise), Transaction, Account …"]
-    end
-
-    subgraph Data["data — Android + Firebase"]
-        direction LR
-        Firestore["Firestore repositories<br/>+ record mapping"] --- Session["Session<br/>sign-in, membership"]
-        Export["PDF / file export"] --- Legacy["Old-app reader<br/>(SQLite, read-only)"]
-        Crash["Crash log"]
-    end
-
-    DI["di — AppContainer<br/>(manual dependency injection)"]
-
-    VMs --> UseCases
-    Firestore -. implements .-> Repos
-    DI --> UI
-    DI --> Domain
-    DI --> Data
-    Firestore <--> Cloud[("Cloud Firestore<br/>+ offline cache")]
-    Session <--> Auth[("Firebase Auth<br/>Google sign-in")]
+    UI -->|calls services,<br/>observes Flows| Domain
+    Data -->|implements repository<br/>interfaces| Domain
+    Data <--> Cloud
+    Data <--> Auth
 ```
+
+`di/AppContainer` wires the three layers together at app start.
 
 **Key decisions**
 
